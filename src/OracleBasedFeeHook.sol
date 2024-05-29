@@ -11,7 +11,7 @@ import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 
-contract RVFeeHook is BaseHook, Ownable {
+contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
     error MustUseDynamicFee();

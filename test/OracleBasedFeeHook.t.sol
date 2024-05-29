@@ -7,17 +7,17 @@ import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Hooks} from "@v4-core/libraries/Hooks.sol";
 import {PoolSwapTest} from "@v4-core/test/PoolSwapTest.sol";
 import {TickMath} from "@v4-core/libraries/TickMath.sol";
-import {RVFeeHook} from "../src/RVFeeHook.sol";
+import {OracleBasedFeeHook} from "../src/OracleBasedFeeHook.sol";
 import {FeeOracle} from "../src/FeeOracle.sol";
 import {HookMiner} from "./utils/HookMiner.sol";
 
 import {console} from "forge-std/console.sol";
 
 
-contract TestRVFeeHook is Test, Deployers {
+contract TestOracleBasedFeeHook is Test, Deployers {
     using CurrencyLibrary for Currency;
 
-    RVFeeHook hook;
+    OracleBasedFeeHook hook;
 
     FeeOracle oracle;
 
@@ -43,11 +43,11 @@ contract TestRVFeeHook is Test, Deployers {
             address(this),
             flags,
             0,
-            type(RVFeeHook).creationCode,
+            type(OracleBasedFeeHook).creationCode,
             abi.encodePacked(manager, address(oracle))
         );            
         
-        hook = new RVFeeHook{salt: salt}(manager, address(oracle));
+        hook = new OracleBasedFeeHook{salt: salt}(manager, address(oracle));
 
         // Initialize a pool
         (key, ) = initPool(
