@@ -1,4 +1,4 @@
-## Votality Hook for Uniswap V4
+## Volatility Hook for Uniswap V4
 
 **Description**
 
