@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {BaseHook} from "v4-periphery/BaseHook.sol";
-import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
-import {Hooks} from "v4-core/libraries/Hooks.sol";
-import {PoolKey} from "v4-core/types/PoolKey.sol";
-import {BalanceDelta} from "v4-core/types/BalanceDelta.sol";
-import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/types/BeforeSwapDelta.sol";
-import {LPFeeLibrary} from "v4-core/libraries/LPFeeLibrary.sol";
+import {BaseHook} from "@v4-periphery/BaseHook.sol";
+import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
+import {Hooks} from "@v4-core/libraries/Hooks.sol";
+import {PoolKey} from "@v4-core/types/PoolKey.sol";
+import {BalanceDelta} from "@v4-core/types/BalanceDelta.sol";
+import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@v4-core/types/BeforeSwapDelta.sol";
+import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 
-contract RVDyanmicOracle is BaseHook, Ownable {
+contract RVFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
     error MustUseDynamicFee();
@@ -60,7 +59,7 @@ contract RVDyanmicOracle is BaseHook, Ownable {
         bytes calldata
     ) external pure override returns (bytes4) {
         if (!key.fee.isDynamicFee()) revert MustUseDynamicFee();
-        return RVDyanmicOracle.beforeInitialize.selector;
+        return this.beforeInitialize.selector;
     }
 
     function beforeSwap(
