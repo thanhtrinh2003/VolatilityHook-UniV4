@@ -73,6 +73,10 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
     }
 
+    function getFeeOracle() external view returns (address) {
+        return address(feeOracle);
+    }
+
     function setFeeOracle(address _feeOracle) external onlyOwner {
         feeOracle = IFeeOracle(_feeOracle);
     }

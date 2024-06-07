@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {BaseHook} from "v4-periphery/BaseHook.sol";
+import {BaseHook} from "@v4-periphery/BaseHook.sol";
 import {Hooks} from "@v4-core/libraries/Hooks.sol";
 import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@v4-core/types/BeforeSwapDelta.sol";
