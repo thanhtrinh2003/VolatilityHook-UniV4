@@ -10,7 +10,8 @@ import {TickMath} from "@v4-core/libraries/TickMath.sol";
 import {OracleBasedFeeHook} from "../src/OracleBasedFeeHook.sol";
 import {OracleBasedFeeHookImp} from "./implementation/OracleBasedFeeHookImp.sol";
 import {FeeOracle} from "../src/FeeOracle.sol";
-import {HookMiner} from "./utils/HookMiner.sol";
+
+import {HookMiner} from "contracts/utils/HookMiner.sol";
 
 import {console} from "forge-std/console.sol";
 
@@ -114,7 +115,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         });
 
         // 0: Conduct a swap when oracle set fee at 0
-        console.log("Case 1: Conduct a swap when oracle set fee at 0.5% `(5000`)");
+        console.log("Case 1: Conduct a swap when oracle set fee at 0% `(0`)");
 
         hoax(oracleOwner, oracleOwner);
         oracle.setFee(0);
@@ -146,6 +147,44 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
         assertGt(balanceOfToken1After, balanceOfToken1Before);
         console.log("Output from fee swap: ", outputFromFeeSwap);
+
+        // 2: Conduct a swap when oracle set fee at 2% (200000)
+        console.log("Case 1: Conduct a swap when oracle set fee at 2% `(20000`)");
+
+        hoax(oracleOwner, oracleOwner);
+        oracle.setFee(20000);
+
+        balanceOfToken1Before = currency1.balanceOfSelf();
+        swapRouter.swap(key, params, testSettings, ZERO_BYTES);
+        balanceOfToken1After = currency1.balanceOfSelf();
+        outputFromFeeSwap = balanceOfToken1After - balanceOfToken1Before;
+
+        console.log("Balance of token1 before swap: ", balanceOfToken1Before);
+        console.log("Balance of token1 after swap: ", balanceOfToken1After);
+
+        assertGt(balanceOfToken1After, balanceOfToken1Before);
+        console.log("Output from fee swap: ", outputFromFeeSwap);
+    }
+
+    function testFindSalt () public {
+        address poolManager = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
+        address feeOracle = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
+
+        //Deploy hook
+         uint160 flags = uint160(
+            Hooks.BEFORE_INITIALIZE_FLAG |  
+            Hooks.BEFORE_SWAP_FLAG
+        );
+
+        (, bytes32 salt) = HookMiner.find(
+            address(this),
+            flags,
+            type(OracleBasedFeeHook).creationCode,
+            abi.encodePacked(IPoolManager(poolManager), address(feeOracle))
+        );
+
+        string memory saltStr = string(abi.encodePacked(salt));
+        console.log("Salt: ", saltStr);
     }
 
 }

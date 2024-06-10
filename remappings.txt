@@ -12,4 +12,5 @@ solmate/=lib/v4-periphery/lib/solmate/src/
 @v4-core/=lib/v4-periphery/lib/v4-core/src/
 @v4-periphery/=lib/v4-periphery/contracts/
 @sp1-contracts/=lib/sp1-contracts/contracts/src/
+contracts=src/
 

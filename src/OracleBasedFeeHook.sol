@@ -11,6 +11,8 @@ import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 
+import {console} from "forge-std/console.sol";
+
 contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
@@ -18,13 +20,14 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
 
     uint32 deployTimestamp;
 
-    IFeeOracle public feeOracle;
+    address public feeOracle;
 
     constructor(
         IPoolManager _poolManager,
         address _feeOracle
     ) BaseHook(_poolManager) Ownable(msg.sender) {
-        feeOracle = IFeeOracle(_feeOracle);
+        console.log("Deploying OracleBasedFeeHook");
+        feeOracle = _feeOracle;
     }
 
     function getHookPermissions()
@@ -68,16 +71,12 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         IPoolManager.SwapParams calldata,
         bytes calldata
     ) external override returns (bytes4, BeforeSwapDelta, uint24) {
-        uint24 fee = feeOracle.getFee();
+        uint24 fee = IFeeOracle(feeOracle).getFee();
         poolManager.updateDynamicLPFee(key, fee);
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
     }
 
-    function getFeeOracle() external view returns (address) {
-        return address(feeOracle);
-    }
-
     function setFeeOracle(address _feeOracle) external onlyOwner {
-        feeOracle = IFeeOracle(_feeOracle);
+        feeOracle = _feeOracle;
     }
 }
