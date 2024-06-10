@@ -8,3 +8,6 @@
 [submodule "lib/sp1-contracts"]
 	path = lib/sp1-contracts
 	url = https://github.com/succinctlabs/sp1-contracts
+[submodule "lib/create3-factory"]
+	path = lib/create3-factory
+	url = https://github.com/zeframlou/create3-factory
