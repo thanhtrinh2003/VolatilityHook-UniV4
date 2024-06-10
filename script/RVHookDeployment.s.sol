@@ -30,23 +30,23 @@ contract hookDeployment is Script {
 
         //Deploy hook
          uint160 flags = uint160(
-            Hooks.BEFORE_INITIALIZE_FLAG |  
+            Hooks.BEFORE_INITIALIZE_FLAG |
             Hooks.BEFORE_SWAP_FLAG
         );
 
         (, bytes32 salt) = HookMiner.find(
-            address(this),
+            0x4e59b44847b379578588920cA78FbF26c0B4956C,
             flags,
             type(OracleBasedFeeHook).creationCode,
-            abi.encodePacked(IPoolManager(poolManager), address(feeOracle))
+            abi.encode(IPoolManager(poolManager), address(feeOracle))
         );
-        
-        console.log("Found salt: ", string(abi.encodePacked(salt)));
-        
+
+        console.logBytes32(salt);
+
         OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(IPoolManager(poolManager), address(feeOracle));
 
         vm.stopBroadcast();
-       
+
 
         console.log("Fee Oracle: ", address(feeOracle));
         console.log("Hook: ", address(hook));
