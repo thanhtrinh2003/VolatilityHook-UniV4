@@ -4,6 +4,8 @@ import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
 
+import {ICREATE3Factory} from "@create3-factory/ICREATE3Factory.sol";
+
 import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 
@@ -12,12 +14,16 @@ import {OracleBasedFeeHook} from "contracts/OracleBasedFeeHook.sol";
 import {MarketDataProvider} from "contracts/MarketDataProvider.sol";
 import {RvVerifiver} from "contracts/VolatilityVerifier.sol";
 
+import {Deployer} from "contracts/Deployer.sol";
+
 import {HookMiner} from "contracts/utils/HookMiner.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract hookDeployment is Script {
     address deployer;
     address poolManager = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
+    
+    //ICREATE3Factory create3Factory = ICREATE3Factory(0x9fBB3DF7C40Da2e5A0dE984fFE2CCB7C47cd0ABf);
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -28,6 +34,8 @@ contract hookDeployment is Script {
         //Deploy verifier, fee oracle
         FeeOracle feeOracle = new FeeOracle(deployer);
 
+        vm.stopBroadcast();
+
         //Deploy hook
          uint160 flags = uint160(
             Hooks.BEFORE_INITIALIZE_FLAG |  
@@ -35,19 +43,21 @@ contract hookDeployment is Script {
         );
 
         (, bytes32 salt) = HookMiner.find(
-            address(this),
+            address(deployer),
             flags,
             type(OracleBasedFeeHook).creationCode,
-            abi.encodePacked(IPoolManager(poolManager), address(feeOracle))
+            abi.encode(IPoolManager(poolManager), address(feeOracle))
         );
         
+
         console.log("Found salt: ", string(abi.encodePacked(salt)));
         
+        vm.startBroadcast(deployer);
+
         OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(IPoolManager(poolManager), address(feeOracle));
 
         vm.stopBroadcast();
        
-
         console.log("Fee Oracle: ", address(feeOracle));
         console.log("Hook: ", address(hook));
     }
