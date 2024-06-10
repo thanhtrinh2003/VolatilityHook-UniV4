@@ -71,8 +71,8 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         hoax(hook.owner(), hook.owner());
         hook.setFeeOracle(address(oracle));
 
-        console.log("Implementation Fee Oracle: ", hookImp.getFeeOracle());
-        console.log("Hook Fee Oracle: ", hook.getFeeOracle());
+        console.log("Implementation Fee Oracle: ", hookImp.feeOracle());
+        console.log("Hook Fee Oracle: ", hook.feeOracle());
 
         // Initialize a pool
         (key, ) = initPool(

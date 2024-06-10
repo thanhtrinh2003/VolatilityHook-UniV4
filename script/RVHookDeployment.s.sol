@@ -21,6 +21,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract hookDeployment is Script {
     address deployer;
+    address create2 = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
     address poolManager = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
 
     //ICREATE3Factory create3Factory = ICREATE3Factory(0x9fBB3DF7C40Da2e5A0dE984fFE2CCB7C47cd0ABf);
@@ -42,13 +43,15 @@ contract hookDeployment is Script {
         );
 
         (, bytes32 salt) = HookMiner.find(
-            0x4e59b44847b379578588920cA78FbF26c0B4956C,
+            create2,
             flags,
             type(OracleBasedFeeHook).creationCode,
             abi.encode(IPoolManager(poolManager), address(feeOracle))
         );
 
         console.logBytes32(salt);
+
+        vm.startBroadcast(deployer);
 
         OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(
             IPoolManager(poolManager),

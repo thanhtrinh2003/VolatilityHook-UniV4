@@ -7,25 +7,18 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FeeOracle is IFeeOracle, Ownable {
     uint256 public constant MIN_FEE = 1000;
-
-    uint24 public fee;
     uint256 public rv;
+    uint24 public fee;
 
     constructor(address _owner) Ownable(_owner) {}
 
     function updateRV(uint256 _realizedVotalitiy) external onlyOwner {
         rv = _realizedVotalitiy;
+        fee = calculateFee(rv);
     }
 
-    function setFee(uint24 _fee) external override onlyOwner {
+    function setDefaultFee(uint24 _fee) external override onlyOwner {
         fee = _fee;
-    }
-       
-    function getFee() external override returns (uint24) {
-        if (rv != 0) {
-            return calculateFee(rv);
-        }
-        return fee;
     }
 
     function calculateFee(uint256 rv) internal returns (uint24) {
