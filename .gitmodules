@@ -5,3 +5,6 @@
 	path = lib/v4-periphery
 	url = https://github.com/Uniswap/v4-periphery.git
 	branch = 6616b12db25257ffb3c562f131612ebb2fd89082
+[submodule "lib/sp1-contracts"]
+	path = lib/sp1-contracts
+	url = https://github.com/succinctlabs/sp1-contracts
