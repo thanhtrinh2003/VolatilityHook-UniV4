@@ -3,10 +3,13 @@ pragma solidity ^0.8.13;
 
 import {RvVerifier} from "./RvVerifier.sol";
 
-contract SnarkBasedFeeOracle is RvVerifier {
+import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
+
+contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle {
     bytes public n1_inv;
     uint256 public s2;
     uint256 rv;
+    uint24 public fee;
 
     constructor(bytes32 _programKey) RvVerifier(_programKey) {}
 
@@ -30,14 +33,22 @@ contract SnarkBasedFeeOracle is RvVerifier {
         // We need to decode n_bytes to get n and then check that n_inv * n == 1 and n_inv_sqrt * n.sqrt() == 1.
 
         rv = s2 * 10;
+        fee = calculateFee(rv);
+    }
 
+    function setFee(uint24 _fee) external override onlyOwner {
+        fee = _fee;
+    }
+
+    function getFee() external view override returns (uint24) {
+        return fee;
     }
 
     function getVolatility() public view returns (uint256) {
         return rv;
     }
 
-
-
-
+     unction calculateFee(uint256 rv) internal returns (uint24) {
+        return uint24(MIN_FEE + rv * 1000);
+    }
 }

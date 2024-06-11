@@ -17,8 +17,12 @@ contract FeeOracle is IFeeOracle, Ownable {
         fee = calculateFee(rv);
     }
 
-    function setDefaultFee(uint24 _fee) external override onlyOwner {
+    function setFee(uint24 _fee) external override onlyOwner {
         fee = _fee;
+    }
+
+    function getFee() external view override returns (uint24) {
+        return fee;
     }
 
     function calculateFee(uint256 rv) internal returns (uint24) {
