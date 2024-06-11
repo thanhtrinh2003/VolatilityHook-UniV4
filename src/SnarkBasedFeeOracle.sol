@@ -5,13 +5,16 @@ import {RvVerifier} from "./RvVerifier.sol";
 
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 
-contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle {
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle, Ownable {
+    uint256 public constant MIN_FEE = 1000;
     bytes public n1_inv;
     uint256 public s2;
     uint256 rv;
     uint24 public fee;
 
-    constructor(bytes32 _programKey) RvVerifier(_programKey) {}
+    constructor(bytes32 _programKey) RvVerifier(_programKey) Ownable(msg.sender) {}
 
     /// @notice The entrypoint for verifying the proof and updating state variables.
     /// @param proof The encoded proof.
@@ -48,7 +51,7 @@ contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle {
         return rv;
     }
 
-     unction calculateFee(uint256 rv) internal returns (uint24) {
+    function calculateFee(uint256 rv) internal returns (uint24) {
         return uint24(MIN_FEE + rv * 1000);
     }
 }

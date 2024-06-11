@@ -33,6 +33,9 @@ contract SwapScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         deployer = vm.rememberKey(deployerPrivateKey);
 
+        vm.startBroadcast(deployer);
+
+
         address token0 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SUSDC_ADDRESS : SETH_ADDRESS;
         address token1 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SETH_ADDRESS : SUSDC_ADDRESS;
         uint24 swapFee = 0x800000;
@@ -57,7 +60,7 @@ contract SwapScript is Script {
         bool zeroForOne = true;
         IPoolManager.SwapParams memory params = IPoolManager.SwapParams({
             zeroForOne: true,
-            amountSpecified: -10e18,
+            amountSpecified: -1e18,
             sqrtPriceLimitX96: zeroForOne ? MIN_PRICE_LIMIT : MAX_PRICE_LIMIT // unlimited impact
         });
 

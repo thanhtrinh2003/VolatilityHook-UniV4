@@ -12,7 +12,6 @@ import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 import {FeeOracle} from "contracts/FeeOracle.sol";
 import {OracleBasedFeeHook} from "contracts/OracleBasedFeeHook.sol";
 import {MarketDataProvider} from "contracts/MarketDataProvider.sol";
-import {RvVerifiver} from "contracts/VolatilityVerifier.sol";
 
 import {Deployer} from "contracts/Deployer.sol";
 
