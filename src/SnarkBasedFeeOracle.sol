@@ -24,7 +24,7 @@ contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle, Ownable {
         bytes memory publicValues
     ) public {
         // Verify the proof using the base contract's function
-        (, , bytes memory new_n1_inv, bytes memory new_s2, ) = this.verifyRvProof(proof, publicValues);
+        (, , bytes4  new_n1_inv, bytes4  new_s2, ) = this.verifyRvProof(proof, publicValues);
 
         // Update the state variables
 
