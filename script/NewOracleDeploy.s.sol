@@ -1,46 +1,95 @@
-// pragma solidity ^0.8.20;
+pragma solidity ^0.8.20;
 
-// import {Script} from "forge-std/Script.sol";
-// import {console} from "forge-std/console.sol";
-// import {Test} from "forge-std/Test.sol";
+import {Script} from "forge-std/Script.sol";
+import {console} from "forge-std/console.sol";
+import {Test} from "forge-std/Test.sol";
 
-// import {ICREATE3Factory} from "@create3-factory/ICREATE3Factory.sol";
+import {ICREATE3Factory} from "@create3-factory/ICREATE3Factory.sol";
 
-// import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
-// import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
+import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
+import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 
-// import {SnarkBasedFeeOracle} from "contracts/SnarkBasedFeeOracle.sol";
-// import {OracleBasedFeeHook} from "contracts/OracleBasedFeeHook.sol";
-// import {MarketDataProvider} from "contracts/MarketDataProvider.sol";
-// import {RvVerifiver} from "contracts/VolatilityVerifier.sol";
+import {SnarkBasedFeeOracle} from "contracts/SnarkBasedFeeOracle.sol";
+import {OracleBasedFeeHook} from "contracts/OracleBasedFeeHook.sol";
+import {MarketDataProvider} from "contracts/MarketDataProvider.sol";
+import {RvVerifier} from "contracts/RvVerifier.sol";
 
-// import {Deployer} from "contracts/Deployer.sol";
+import {Deployer} from "contracts/Deployer.sol";
 
-// import {HookMiner} from "contracts/utils/HookMiner.sol";
-// import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {stdJson} from "forge-std/StdJson.sol";
+import {console} from "forge-std/console.sol";
 
-// contract hookDeployment is Script {
-//     address deployer;
-//     address hook = 0x344778Db62D10706df880dAC7B0E680a01DF2080;
-//     address poolManager = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
+import {HookMiner} from "contracts/utils/HookMiner.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 
-//     function run() public {
-//         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-//         deployer = vm.rememberKey(deployerPrivateKey);
+struct SP1ProofFixtureJson {
+    int32 s2;
+    uint32 n;
+    uint32 nInvSqrt;
+    uint32 n1Inv;
+    bytes32 digest;
+    bytes publicValues;
+    bytes proof;
+    bytes32 vkey;
+}
 
-//         vm.startBroadcast(deployer);
 
-//         //Deploy verifier, fee oracle
-//         bytes32 programKey  = 0x000c413c257554c0d44f840ea4e6e3cf6acf1ec722af839547814ce9632fd6bf;
-//         SnarkBasedFeeOracle feeOracle = new SnarkBasedFeeOracle(programKey);
+contract hookDeployment is Script {
+    using stdJson for string;
+    address deployer;
+    address hook;
+    address poolManager;
 
-//         OracleBasedFeeHook(hook).setFeeOracle(address(feeOracle));
-//         feeOracle.setFee(5000);
+    function loadFixture() public view returns (SP1ProofFixtureJson memory) {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "/src/fixtures/fixture.json");
+        string memory json = vm.readFile(path);
 
-//         vm.stopBroadcast();
+        // Decode individual fields
+        SP1ProofFixtureJson memory fixture;
+        fixture.s2 = abi.decode(json.parseRaw(".s2"), (int32));
+        fixture.n = abi.decode(json.parseRaw(".n"), (uint32));
+        fixture.nInvSqrt = abi.decode(json.parseRaw(".nInvSqrt"), (uint32));
+        fixture.n1Inv = abi.decode(json.parseRaw(".n1Inv"), (uint32));
+        fixture.digest = abi.decode(json.parseRaw(".digest"), (bytes32));
+        fixture.publicValues = abi.decode(json.parseRaw(".publicValues"), (bytes));
+        fixture.proof = abi.decode(json.parseRaw(".proof"), (bytes));
+        fixture.vkey = abi.decode(json.parseRaw(".vkey"), (bytes32));
 
-//         console.log("Fee Oracle: ", address(feeOracle));
-//         console.log("Hook: ", address(hook));
-//     }
-// }
+        return fixture;
+    }
+
+
+
+    function run() public {
+
+        SP1ProofFixtureJson memory fixture = loadFixture();
+
+
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        deployer = vm.rememberKey(deployerPrivateKey);
+
+        // Load hook and poolManager addresses from environment variables
+        hook = vm.envAddress("HOOK_ADDRESS");
+        poolManager = vm.envAddress("POOLMANAGER");
+
+
+        vm.startBroadcast(deployer);
+
+        //Deploy verifier, fee oracle
+        bytes32 programKey  = fixture.vkey;
+        console.log("proggram key:");
+        // console.log(programKey);
+        
+        SnarkBasedFeeOracle feeOracle = new SnarkBasedFeeOracle(programKey);
+
+        OracleBasedFeeHook(hook).setFeeOracle(address(feeOracle));
+        feeOracle.setFee(5000);
+
+        vm.stopBroadcast();
+
+        console.log("Fee Oracle: ", address(feeOracle));
+        console.log("Hook: ", address(hook));
+    }
+}
