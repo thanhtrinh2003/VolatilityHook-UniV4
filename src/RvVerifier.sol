@@ -29,4 +29,23 @@ contract RvVerifier is SP1Verifier {
         );
         return (ticks, n_inv_sqrt, n1_inv, s2, n_bytes);
     }
+    
+    /// @notice The entrypoint for verifying the proof of a realized volatility calculation.
+    /// @param proof The encoded proof.
+    /// @param publicValues The encoded public values.
+    /// @dev the public values are better explained in the SP1 `program`
+    function verifyUpdatedRvProof( 
+        bytes memory proof,
+        bytes memory publicValues,
+        bytes32 vkey
+    //) public view returns (bytes4,  bytes4, bytes4, bytes4, bytes32 ) {
+    ) public view returns (bool) {
+        this.verifyProof(vkey, publicValues, proof);
+        /* (bytes4 n_inv_sqrt, bytes4 n1_inv, bytes4 s2, bytes4 n_bytes, bytes32 digest) = abi.decode(
+            publicValues,
+            (bytes4, bytes4, bytes4, bytes4, bytes32)
+        ); 
+        return (n_inv_sqrt, n1_inv, s2, n_bytes, digest); */
+        return(true);
+    }
 }
