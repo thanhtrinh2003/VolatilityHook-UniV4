@@ -44,7 +44,6 @@ contract SwapScript is Script {
         uint24 swapFee = 0x800000;
         int24 tickSpacing = 600;
 
-        uint160 startingPrice = 79228162514264337593543950336;
 
         PoolKey memory key = PoolKey({
             currency0: Currency.wrap(token0),
@@ -53,6 +52,12 @@ contract SwapScript is Script {
             tickSpacing: tickSpacing,
             hooks: IHooks(HOOK_ADDRESS)
         });
+
+        // logs the pool id
+        PoolId id = PoolIdLibrary.toId(key);
+        bytes32 idBytes = PoolId.unwrap(id);
+        console.log("Pool ID Below");
+        console.logBytes32(bytes32(idBytes));
 
 
         // approve tokens to the swap router
