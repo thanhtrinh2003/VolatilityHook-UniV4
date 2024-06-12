@@ -15,22 +15,22 @@ import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 contract AddLiquidityScript is Script {
     using CurrencyLibrary for Currency;
 
-    // address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14); 
-    // address constant SETH_ADDRESS = address(0x8B392a9bc80c61B700aa7965Af237b60342B21e2); 
-    // address constant SUSDC_ADDRESS = address(0x8995D3DAA51AF4C3Ab0221Bc9Ac890694720A0e2); 
-    // address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080); 
-
-    address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14); 
-    address constant SETH_ADDRESS = address(0xcff8733a17a0e5Dbb22D36AdEB806F2E63879858); 
-    address constant SUSDC_ADDRESS = address(0x6C1234d626C98138fAE37742Dd5B08F43FbA9475); 
-    address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080); 
-
-    IPoolManager manager = IPoolManager(POOLMANAGER);
-    PoolModifyLiquidityTest lpRouter = PoolModifyLiquidityTest(address(0x2b925D1036E2E17F79CF9bB44ef91B95a3f9a084));
+    IPoolManager manager;
+    PoolModifyLiquidityTest lpRouter;
 
     address deployer;
 
     function run() external {
+        address POOLMANAGER = vm.envAddress("POOLMANAGER");
+        address SETH_ADDRESS = vm.envAddress("SETH_ADDRESS");
+        address SUSDC_ADDRESS = vm.envAddress("SUSDC_ADDRESS");
+        address HOOK_ADDRESS = vm.envAddress("HOOK_ADDRESS");
+        address LPROUTER_ADDRESS = vm.envAddress("LPROUTER_ADDRESS");
+        manager = IPoolManager(POOLMANAGER);
+        lpRouter = PoolModifyLiquidityTest(LPROUTER_ADDRESS);
+
+
+        console.log("lp router manager: ");
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         deployer = vm.rememberKey(deployerPrivateKey);
 
@@ -40,11 +40,11 @@ contract AddLiquidityScript is Script {
         address token1 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SETH_ADDRESS : SUSDC_ADDRESS;
         
         uint24 swapFee = 0x800000;
-        int24 tickSpacing = 10;
+        int24 tickSpacing = 600;
 
         uint160 startingPrice = 79228162514264337593543950336;
 
-        PoolKey memory pool = PoolKey({
+        PoolKey memory key = PoolKey({
             currency0: Currency.wrap(token0),
             currency1: Currency.wrap(token1),
             fee: swapFee,
@@ -60,15 +60,15 @@ contract AddLiquidityScript is Script {
         bytes memory hookData = new bytes(0);
 
         // logging the pool ID
-        PoolId id = PoolIdLibrary.toId(pool);
+        PoolId id = PoolIdLibrary.toId(key);
         bytes32 idBytes = PoolId.unwrap(id);
         console.log("Pool ID Below");
         console.logBytes32(bytes32(idBytes));
 
         //Create pool
-        manager.initialize(pool, startingPrice, hookData);
+        manager.initialize(key, startingPrice, hookData);
 
         // Provide 10_000e18 worth of liquidity on the range of [-600, 600]
-        lpRouter.modifyLiquidity(pool, IPoolManager.ModifyLiquidityParams(-600, 600, 1000e18, 0), hookData);
+        lpRouter.modifyLiquidity(key, IPoolManager.ModifyLiquidityParams(-600, 600, 1000e18, 0), hookData);
     }
 }
