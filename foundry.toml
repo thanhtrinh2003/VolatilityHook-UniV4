@@ -6,3 +6,11 @@ via_ir = false
 ffi = true
 fs_permissions = [{ access = "read", path = "./"}]
 
+[rpc_endpoints]
+mainnet = "https://eth-mainnet.alchemyapi.io/v2/zOVFUzSEld1v_MuTOqGPYkTYttwBUrmF"
+fraxtal = "https://rpc.frax.com"
+fraxtal_test = "https://rpc.tenderly.co/fork/2329e7f5-c246-48fb-a310-326818784b0f"
+
+[etherscan]
+fraxtal = { key = "XPECQT9D6I9B1NASM5E6FQZ2374INS3E9M" }
+

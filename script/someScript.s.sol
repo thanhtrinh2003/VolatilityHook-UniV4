@@ -14,7 +14,7 @@ import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 import {TickMath} from "@v4-core/libraries/TickMath.sol";
 
 
-contract SwapScript is Script {
+contract SomeScript is Script {
     // PoolSwapTest Contract address on Goerli
     PoolSwapTest swapRouter = PoolSwapTest(0xB8b53649b87F0e1eb3923305490a5cB288083f82);
 
@@ -37,39 +37,9 @@ contract SwapScript is Script {
 
         address token0 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SUSDC_ADDRESS : SETH_ADDRESS;
         address token1 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SETH_ADDRESS : SUSDC_ADDRESS;
-        uint24 swapFee = 0x800000;
-        int24 tickSpacing = 60;
 
-        // Using a hooked pool
-        PoolKey memory pool = PoolKey({
-            currency0: Currency.wrap(token0),
-            currency1: Currency.wrap(token1),
-            fee: swapFee,
-            tickSpacing: tickSpacing,
-            hooks: IHooks(HOOK_ADDRESS)
-        });
-
-        // approve tokens to the swap router
-        IERC20(token0).approve(address(swapRouter), type(uint256).max);
-        IERC20(token1).approve(address(swapRouter), type(uint256).max);
-
-        // ---------------------------- //
-        // Swap 100e18 token0 into token1 //
-        // ---------------------------- //
-        bool zeroForOne = true;
-        IPoolManager.SwapParams memory params = IPoolManager.SwapParams({
-            zeroForOne: true,
-            amountSpecified: -1e18,
-            sqrtPriceLimitX96: 4295128740
-        });
-
-        // in v4, users have the option to receieve native ERC20s or wrapped ERC1155 tokens
-        // here, we'll take the ERC20s
-        PoolSwapTest.TestSettings memory testSettings =
-            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
-
-        bytes memory hookData = new bytes(0);
-        swapRouter.swap(pool, params, testSettings, hookData);
-
+        // send tokens to the pp
+        IERC20(token0).transfer(0x290AAE5e725e98Af06B01Bd91aff5E1Eb84E4D4B, 5e18);
+        IERC20(token1).transfer(0x290AAE5e725e98Af06B01Bd91aff5E1Eb84E4D4B, 5e18);
     }
 }
