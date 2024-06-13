@@ -28,7 +28,7 @@ contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle, Ownable {
 
         // Update the state variables
 
-        s2 = uint256(bytes32(new_s2));
+        s2 = uint256(uint32(new_s2));
 
         // TODO: used fixed point floats for rv and substitue 10 by ln(1.0001)
         // TODO: Also, there are two values that are input to the proof, n_inv_sqrt and n_inv 
@@ -51,7 +51,7 @@ contract SnarkBasedFeeOracle is RvVerifier, IFeeOracle, Ownable {
         return rv;
     }
 
-    function calculateFee(uint256 rv) internal returns (uint24) {
+    function calculateFee(uint256 _rv) internal returns (uint24) {
         return uint24(MIN_FEE + rv * 1000);
     }
 }
