@@ -9,13 +9,15 @@ import {BalanceDelta} from "@v4-core/types/BalanceDelta.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@v4-core/types/BeforeSwapDelta.sol";
 import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
-
+import {ISnarkBasedFeeOracle} from "./interfaces/ISnarkBasedFeeOracle.sol";
+import {SnarkBasedFeeOracle} from "./SnarkBasedFeeOracle.sol";
 import {console} from "forge-std/console.sol";
 
 contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
+    uint256 public constant MIN_FEE = 1000;
+    
     error MustUseDynamicFee();
 
     uint32 deployTimestamp;
@@ -27,7 +29,7 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         address _feeOracle
     ) BaseHook(_poolManager) Ownable(msg.sender) {
         console.log("Deploying OracleBasedFeeHook");
-        feeOracle = _feeOracle;
+        feeOracle = _feeOracle; 
     }
 
     function getHookPermissions()
@@ -65,18 +67,40 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         return this.beforeInitialize.selector;
     }
 
+    function abs(int256 x) private pure returns (uint256) {
+        if (x >= 0) {
+            return uint256(x);
+        }
+        return uint256(-x);
+    }
+
     function beforeSwap(
         address,
         PoolKey calldata key,
-        IPoolManager.SwapParams calldata,
+        IPoolManager.SwapParams calldata swapData,
         bytes calldata
     ) external override returns (bytes4, BeforeSwapDelta, uint24) {
-        uint24 fee = IFeeOracle(feeOracle).getFee();
+        uint256 volatility = ISnarkBasedFeeOracle(feeOracle).getVolatility();
+        uint256 price = ISnarkBasedFeeOracle(feeOracle).getPrice(); 
+        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility, price);
         poolManager.updateDynamicLPFee(key, fee);
+
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
     }
 
     function setFeeOracle(address _feeOracle) external onlyOwner {
         feeOracle = _feeOracle;
+    } 
+
+    function calculateFee(uint256 volume, uint256 volatility, uint256 price) internal pure returns (uint24) {
+        uint256 scaled_volume = volume / 150;
+        uint256 longterm_eth_volatility = 60;
+        uint256 scaled_vol = volatility / longterm_eth_volatility;
+        uint256 constant_factor = 2;
+
+        uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_volume * scaled_vol ** 2);
+
+        return uint24((fee_per_lot / price / 1e10));
     }
+
 }

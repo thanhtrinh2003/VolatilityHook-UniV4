@@ -10,21 +10,52 @@ import {TickMath} from "@v4-core/libraries/TickMath.sol";
 import {OracleBasedFeeHook} from "../src/OracleBasedFeeHook.sol";
 import {OracleBasedFeeHookImp} from "./implementation/OracleBasedFeeHookImp.sol";
 import {FeeOracle} from "../src/FeeOracle.sol";
-
+import {SnarkBasedFeeOracle} from "../src/SnarkBasedFeeOracle.sol";
+import {stdJson} from "forge-std/StdJson.sol";
 import {HookMiner} from "contracts/utils/HookMiner.sol";
 
 import {console} from "forge-std/console.sol";
 
 
+struct SP1ProofFixtureJson {
+    int32 s2;
+    int32 s;
+    uint32 n;
+    uint32 nInvSqrt;
+    uint32 n1Inv;
+    bytes32 digest;
+    bytes publicValues;
+    bytes proof;
+    bytes32 vkey;
+}
 contract TestOracleBasedFeeHook is Test, Deployers {
     using CurrencyLibrary for Currency;
-
+    using stdJson for string;
     OracleBasedFeeHook hook;
 
-    FeeOracle oracle;
+    SnarkBasedFeeOracle oracle;
 
     address oracleOwner = address(1);
 
+    function loadFixture() public view returns (SP1ProofFixtureJson memory) {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "/src/fixtures/fixture.json");
+        string memory json = vm.readFile(path);
+
+        // Decode individual fields
+        SP1ProofFixtureJson memory fixture;
+        fixture.s2 = abi.decode(json.parseRaw(".s2"), (int32));
+        fixture.s = abi.decode(json.parseRaw(".s"), (int32));
+        fixture.n = abi.decode(json.parseRaw(".n"), (uint32));
+        fixture.nInvSqrt = abi.decode(json.parseRaw(".nInvSqrt"), (uint32));
+        fixture.n1Inv = abi.decode(json.parseRaw(".n1Inv"), (uint32));
+        fixture.digest = abi.decode(json.parseRaw(".digest"), (bytes32));
+        fixture.publicValues = abi.decode(json.parseRaw(".publicValues"), (bytes));
+        fixture.proof = abi.decode(json.parseRaw(".proof"), (bytes));
+        fixture.vkey = abi.decode(json.parseRaw(".vkey"), (bytes32));
+
+        return fixture;
+    }
     function setUp() public {
         // Deploy v4-cores
         deployFreshManagerAndRouters();
@@ -36,7 +67,9 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         hook = OracleBasedFeeHook(address(uint160(Hooks.BEFORE_INITIALIZE_FLAG | Hooks.BEFORE_SWAP_FLAG)));
         
         // Deploy our oracle
-        oracle = new FeeOracle(oracleOwner);
+        bytes32 programKey = 0x0006adb3831affa6e27ba51eea3a95b6339057ff9938311a68739bb8d5f5aef4;
+        hoax(oracleOwner, oracleOwner);
+        oracle = new SnarkBasedFeeOracle(programKey);
 
         // // Deploy our hook with proper flags - Normal way
         // uint160 flags = uint160(
@@ -66,13 +99,8 @@ contract TestOracleBasedFeeHook is Test, Deployers {
                 vm.store(address(hook), slot, vm.load(address(hookImp), slot));
             }
         }
-
-        // Set up the oracle - Just in testing environment
-        hoax(hook.owner(), hook.owner());
-        hook.setFeeOracle(address(oracle));
-
-        console.log("Implementation Fee Oracle: ", hookImp.feeOracle());
-        console.log("Hook Fee Oracle: ", hook.feeOracle());
+        console.log("Hook fee oracle: ", hook.feeOracle());
+        console.log("HookImp fee oracle: ", hookImp.feeOracle());
 
         // Initialize a pool
         (key, ) = initPool(
@@ -102,6 +130,8 @@ contract TestOracleBasedFeeHook is Test, Deployers {
     }
 
     function test_feeUpdated() public {
+        SP1ProofFixtureJson memory fixture = loadFixture();
+
         // Set up swap parameters
         PoolSwapTest.TestSettings memory testSettings = PoolSwapTest.TestSettings({
             takeClaims : false, 
@@ -114,11 +144,14 @@ contract TestOracleBasedFeeHook is Test, Deployers {
             sqrtPriceLimitX96: TickMath.MIN_SQRT_PRICE + 1
         });
 
-        // 0: Conduct a swap when oracle set fee at 0
+        // 0: Conduct a swap before volatility has been updated 
         console.log("Case 1: Conduct a swap when oracle set fee at 0% `(0`)");
 
         hoax(oracleOwner, oracleOwner);
-        oracle.setFee(0);
+        oracle.setPrice(0);
+
+        hoax(oracleOwner, oracleOwner);
+        oracle.setVolatility(0);
 
         uint256 balanceOfToken1Before = currency1.balanceOfSelf();
         swapRouter.swap(key, params, testSettings, ZERO_BYTES);
@@ -131,12 +164,12 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         assertGt(balanceOfToken1After, balanceOfToken1Before);
         console.log("Output from fee swap: ", outputFromFeeSwap);
 
-        // 1: Conduct a swap when oracle set fee at 0.5% (5000)
+        // 1: Conduct a swap after volatility has been updated 
         console.log("Case 1: Conduct a swap when oracle set fee at 0.5% `(5000`)");
 
         hoax(oracleOwner, oracleOwner);
-        oracle.setFee(5000);
-
+        
+        oracle.verifyAndUpdate(uint256(uint32(fixture.s)), fixture.proof, fixture.publicValues);
         balanceOfToken1Before = currency1.balanceOfSelf();
         swapRouter.swap(key, params, testSettings, ZERO_BYTES);
         balanceOfToken1After = currency1.balanceOfSelf();
@@ -148,22 +181,6 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         assertGt(balanceOfToken1After, balanceOfToken1Before);
         console.log("Output from fee swap: ", outputFromFeeSwap);
 
-        // 2: Conduct a swap when oracle set fee at 2% (200000)
-        console.log("Case 1: Conduct a swap when oracle set fee at 2% `(20000`)");
-
-        hoax(oracleOwner, oracleOwner);
-        oracle.setFee(20000);
-
-        balanceOfToken1Before = currency1.balanceOfSelf();
-        swapRouter.swap(key, params, testSettings, ZERO_BYTES);
-        balanceOfToken1After = currency1.balanceOfSelf();
-        outputFromFeeSwap = balanceOfToken1After - balanceOfToken1Before;
-
-        console.log("Balance of token1 before swap: ", balanceOfToken1Before);
-        console.log("Balance of token1 after swap: ", balanceOfToken1After);
-
-        assertGt(balanceOfToken1After, balanceOfToken1Before);
-        console.log("Output from fee swap: ", outputFromFeeSwap);
     }
 
     function testFindSalt () public {
