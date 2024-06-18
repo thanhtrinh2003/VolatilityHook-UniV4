@@ -15,14 +15,9 @@ import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 contract AddLiquidityScript is Script {
     using CurrencyLibrary for Currency;
 
-    // address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14); 
-    // address constant SETH_ADDRESS = address(0x8B392a9bc80c61B700aa7965Af237b60342B21e2); 
-    // address constant SUSDC_ADDRESS = address(0x8995D3DAA51AF4C3Ab0221Bc9Ac890694720A0e2); 
-    // address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080); 
-
     address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14); 
-    address constant SETH_ADDRESS = address(0xcff8733a17a0e5Dbb22D36AdEB806F2E63879858); 
-    address constant SUSDC_ADDRESS = address(0x6C1234d626C98138fAE37742Dd5B08F43FbA9475); 
+    address constant SETH_ADDRESS = address(0x5c2143dA3071627568aB1FA146E688B4B000Bb05); 
+    address constant SUSDC_ADDRESS = address(0xC056fd4dD61d1647996Fa8eE076E34113B43E952); 
     address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080); 
 
     IPoolManager manager = IPoolManager(POOLMANAGER);
@@ -40,9 +35,9 @@ contract AddLiquidityScript is Script {
         address token1 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SETH_ADDRESS : SUSDC_ADDRESS;
         
         uint24 swapFee = 0x800000;
-        int24 tickSpacing = 10;
+        int24 tickSpacing = 60;
 
-        uint160 startingPrice = 79228162514264337593543950336;
+        uint160 startingPrice = 4819260982861451012142998631604;
 
         PoolKey memory pool = PoolKey({
             currency0: Currency.wrap(token0),
@@ -53,8 +48,8 @@ contract AddLiquidityScript is Script {
         });
 
         // approve tokens to the LP Router
-        IERC20(token0).approve(address(lpRouter), 1000e18);
-        IERC20(token1).approve(address(lpRouter), 1000e18);
+        IERC20(token0).approve(address(lpRouter), 10000000e18);
+        IERC20(token1).approve(address(lpRouter), 10000000e18);
 
         // optionally specify hookData if the hook depends on arbitrary data for liquidity modification
         bytes memory hookData = new bytes(0);
@@ -69,6 +64,6 @@ contract AddLiquidityScript is Script {
         manager.initialize(pool, startingPrice, hookData);
 
         // Provide 10_000e18 worth of liquidity on the range of [-600, 600]
-        lpRouter.modifyLiquidity(pool, IPoolManager.ModifyLiquidityParams(-600, 600, 1000e18, 0), hookData);
+        lpRouter.modifyLiquidity(pool, IPoolManager.ModifyLiquidityParams(-887220, 887220, 10000000e18, 0), hookData);
     }
 }
