@@ -25,8 +25,8 @@ contract FeeOracle is IFeeOracle, Ownable {
         return fee;
     }
 
-    function calculateFee(uint256 rv) internal returns (uint24) {
-        return uint24(MIN_FEE + rv * 1000);
+    function calculateFee(uint256 _rv) internal returns (uint24) {
+        return uint24(MIN_FEE + _rv * 1000);
     }
 
 }
