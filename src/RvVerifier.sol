@@ -14,6 +14,9 @@ contract RvVerifier is SP1Verifier {
         programKey = _programKey;
     }
 
+    function setProgramKey(bytes32 _programKey) public {
+        programKey = _programKey;
+    }
     
     /// @notice The entrypoint for verifying the proof of a realized volatility calculation.
     /// @param proof The encoded proof.
