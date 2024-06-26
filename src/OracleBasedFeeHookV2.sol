@@ -12,9 +12,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ISnarkBasedFeeOracle} from "./interfaces/ISnarkBasedFeeOracle.sol";
 import {SnarkBasedFeeOracle} from "./SnarkBasedFeeOracle.sol";
 import {console} from "forge-std/console.sol";
+import {CalcFeeUtils} from "./CalcFeeUtils.sol";
 
-contract OracleBasedFeeHook is BaseHook, Ownable {
+contract OracleBasedFeeHookV2 is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
+    using CalcFeeUtils for int256;
 
     uint256 public constant MIN_FEE = 1000;
     
@@ -81,7 +83,11 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         bytes calldata
     ) external override returns (bytes4, BeforeSwapDelta, uint24) {
         uint256 volatility = ISnarkBasedFeeOracle(feeOracle).getVolatility();
-        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility, 2);
+        
+        //TODO: setup a correct cdf, (also through a proof?)
+        //other option is to use the z_score to calcualte cdf on chain...
+        uint256 cdf = 22750062887256395;
+        uint24 fee = calculateFee(volatility, cdf);
         poolManager.updateDynamicLPFee(key, fee);
 
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
@@ -91,14 +97,22 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         feeOracle = _feeOracle;
     } 
 
-    function calculateFee(uint256 volume, uint256 volatility, uint256 price) internal pure returns (uint24) {
+
+
+
+
+    function calculateFee(uint256 volatility, uint256 cdf) internal pure returns (uint24) {
+        // 0.5 shift
+        uint256 fee_scalar = cdf + 500000000000000000;
         // uint256 scaled_volume = volume / 150;
         // uint256 longterm_eth_volatility = 60;
         // uint256 scaled_vol = volatility / longterm_eth_volatility;
         // uint256 constant_factor = 2;
 
-        // uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_vol);
-        return uint24(2 * 1000);
+        uint256 fee_per_lot = MIN_FEE * fee_scalar;
+
+        return uint24((fee_per_lot /   1e10));
+
     }
 
 }

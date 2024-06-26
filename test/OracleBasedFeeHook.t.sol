@@ -101,7 +101,8 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
     function test_feeUpdate() public {
         // positions were created in setup()
-
+        SP1ProofFixtureJson memory fixture = loadFixture();
+        oracle.verifyAndUpdate(uint256(uint32(fixture.s)), fixture.proof, fixture.publicValues);
         // TODO: assert fees before setFee()
 
         // Perform a test swap //
