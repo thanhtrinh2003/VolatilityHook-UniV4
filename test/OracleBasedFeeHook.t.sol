@@ -42,9 +42,9 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
     address oracleOwner = address(1);
 
-    function loadFixture() public view returns (SP1ProofFixtureJson memory) {
+    function loadFixture(string memory fixture_path) public view returns (SP1ProofFixtureJson memory) {
         string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/fixtures/fixture.json");
+        string memory path = string.concat(root, fixture_path);
         string memory json = vm.readFile(path);
 
         // Decode individual fields
@@ -101,7 +101,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
     function test_feeUpdate() public {
         // positions were created in setup()
-        SP1ProofFixtureJson memory fixture = loadFixture();
+        SP1ProofFixtureJson memory fixture = loadFixture("/src/fixtures/fixture.json");
         oracle.verifyAndUpdate(uint256(uint32(fixture.s)), fixture.proof, fixture.publicValues);
         // TODO: assert fees before setFee()
 
@@ -113,7 +113,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
         // //TODO: assert correct fee was applied to swap, with another swap
 
-        // assertEq(int256(swapDelta.amount0()), amountSpecified);
+        assertEq(int256(swapDelta.amount0()), amountSpecified);
 
     }
 
