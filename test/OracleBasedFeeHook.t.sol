@@ -22,11 +22,11 @@ import {console} from "forge-std/console.sol";
 
 
 struct SP1ProofFixtureJson {
-    int32 s2;
-    int32 s;
-    uint32 n;
-    uint32 nInvSqrt;
-    uint32 n1Inv;
+    int64 s2;
+    int64 s;
+    uint64 n;
+    uint64 nInvSqrt;
+    uint64 n1Inv;
     bytes32 digest;
     bytes publicValues;
     bytes proof;
@@ -49,11 +49,11 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
         // Decode individual fields
         SP1ProofFixtureJson memory fixture;
-        fixture.s2 = abi.decode(json.parseRaw(".s2"), (int32));
-        fixture.s = abi.decode(json.parseRaw(".s"), (int32));
-        fixture.n = abi.decode(json.parseRaw(".n"), (uint32));
-        fixture.nInvSqrt = abi.decode(json.parseRaw(".nInvSqrt"), (uint32));
-        fixture.n1Inv = abi.decode(json.parseRaw(".n1Inv"), (uint32));
+        fixture.s2 = abi.decode(json.parseRaw(".s2"), (int64));
+        fixture.s = abi.decode(json.parseRaw(".s"), (int64));
+        fixture.n = abi.decode(json.parseRaw(".n"), (uint64));
+        fixture.nInvSqrt = abi.decode(json.parseRaw(".nInvSqrt"), (uint64));
+        fixture.n1Inv = abi.decode(json.parseRaw(".n1Inv"), (uint64));
         fixture.digest = abi.decode(json.parseRaw(".digest"), (bytes32));
         fixture.publicValues = abi.decode(json.parseRaw(".publicValues"), (bytes));
         fixture.proof = abi.decode(json.parseRaw(".proof"), (bytes));
@@ -102,7 +102,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
     function test_feeUpdate() public {
         // positions were created in setup()
         SP1ProofFixtureJson memory fixture = loadFixture();
-        oracle.verifyAndUpdate(uint256(uint32(fixture.s)), fixture.proof, fixture.publicValues);
+        oracle.verifyAndUpdate(uint256(uint64(fixture.s)), fixture.proof, fixture.publicValues);
         // TODO: assert fees before setFee()
 
         // Perform a test swap //
@@ -157,7 +157,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
 
     //     hoax(oracleOwner, oracleOwner);
         
-    //     oracle.verifyAndUpdate(uint256(uint32(fixture.s)), fixture.proof, fixture.publicValues);
+    //     oracle.verifyAndUpdate(uint256(uint64(fixture.s)), fixture.proof, fixture.publicValues;
     //     balanceOfToken1Before = currency1.balanceOfSelf();
     //     swapRouter.swap(key, params, testSettings, ZERO_BYTES);
     //     balanceOfToken1After = currency1.balanceOfSelf();
