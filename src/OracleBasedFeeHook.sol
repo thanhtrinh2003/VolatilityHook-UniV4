@@ -20,9 +20,16 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
     
     error MustUseDynamicFee();
 
+
+
     uint32 deployTimestamp;
 
     address public feeOracle;
+
+
+    event FeeUpdate(uint256 indexed newFee, uint256 timestamp);
+
+
 
     constructor(
         IPoolManager _poolManager,
@@ -81,9 +88,10 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         bytes calldata
     ) external override returns (bytes4, BeforeSwapDelta, uint24) {
         uint256 volatility = ISnarkBasedFeeOracle(feeOracle).getVolatility();
-        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility, 2);
+        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility, swapData.sqrtPriceLimitX96);
         poolManager.updateDynamicLPFee(key, fee);
 
+        emit FeeUpdate(fee, block.timestamp);
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
     }
 
@@ -91,14 +99,30 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         feeOracle = _feeOracle;
     } 
 
-    function calculateFee(uint256 volume, uint256 volatility, uint256 price) internal pure returns (uint24) {
-        // uint256 scaled_volume = volume / 150;
-        // uint256 longterm_eth_volatility = 60;
-        // uint256 scaled_vol = volatility / longterm_eth_volatility;
-        // uint256 constant_factor = 2;
+ function calculateFee(uint256 volume, uint256 volatility, uint256 price) public view returns (uint24) {
+    // console.log(volume);
+    // console.log(volatility);
+    // console.log(price);
 
-        // uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_vol);
-        return uint24(2 * 1000);
+    // Normalize inputs
+    uint256 maxVolume = 1e18; // max value for volume
+    uint256 maxVolatility = 1e9; // max value for volatility
+    uint256 maxPrice = 1e10; //  max value for price
+
+    uint256 normalizedVolume = volume * 1e18 / maxVolume;
+    uint256 normalizedVolatility = volatility * 1e18 / maxVolatility;
+    uint256 normalizedPrice = price * 1e18 / maxPrice;
+
+    uint256 value = (normalizedVolume + normalizedVolatility + normalizedPrice) / 3;
+
+    // Scale combined value to fee range
+    uint256 minFee = 1000;
+    //TODO: should the max fee exceed some limit?
+    uint256 maxFee = 100000;
+
+    uint256 fee = minFee + (value * (maxFee - minFee) / 1e18);
+
+    return uint24(fee);
     }
 
 }
