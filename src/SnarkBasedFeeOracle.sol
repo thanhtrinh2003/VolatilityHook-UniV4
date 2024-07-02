@@ -10,7 +10,6 @@ contract SnarkBasedFeeOracle is RvVerifier, Ownable {
     uint256 public rv;
     uint256 public constant fraction_bits = 40;
     uint public constant ln_1_0001 = 109945666;
-    uint256 public price;
 
     constructor(bytes32 _programKey) RvVerifier(_programKey) Ownable(msg.sender) {}
 
@@ -71,17 +70,42 @@ contract SnarkBasedFeeOracle is RvVerifier, Ownable {
         return s2_test < s2 + error && s2_test > s2 - error;
     }
 
+ function calculateFee(uint256 volume, uint256 volatility, uint256 price) public view returns (uint24) {
+    // console.log(volume);
+    // console.log(volatility);
+    // console.log(price);
+
+    // Normalize inputs
+    uint256 maxVolume = 1e18; // max value for volume
+    uint256 maxVolatility = 1e9; // max value for volatility
+    uint256 maxPrice = 1e10; //  max value for price
+
+    uint256 normalizedVolume = volume * 1e18 / maxVolume;
+    uint256 normalizedVolatility = volatility * 1e18 / maxVolatility;
+    uint256 normalizedPrice = price * 1e18 / maxPrice;
+
+    uint256 value = (normalizedVolume + normalizedVolatility + normalizedPrice) / 3;
+
+    // Scale combined value to fee range
+    uint256 minFee = 1000;
+    //TODO: should the max fee exceed some limit?
+    uint256 maxFee = 100000;
+
+    uint256 fee = minFee + (value * (maxFee - minFee) / 1e18);
+
+    return uint24(fee);
+    }
+
+    function getFee(bytes calldata data) external view returns (uint24){
+        (uint256 volume, uint160 sqrtPriceLimit) = abi.decode(data, (uint256, uint160));
+        calculateFee(volume, rv, sqrtPriceLimit);
+    }
+
+
     function getVolatility() external view returns (uint256) {
         return rv;
     }
     
-    function getPrice() external view returns (uint256) {
-        return price;
-    }
-
-    function setPrice(uint256 _price) public onlyOwner {
-        price = _price;
-    }
 
     function setVolatility(uint256 _rv) public onlyOwner {
         rv = _rv;

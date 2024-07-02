@@ -9,7 +9,7 @@ import {BalanceDelta} from "@v4-core/types/BalanceDelta.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@v4-core/types/BeforeSwapDelta.sol";
 import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ISnarkBasedFeeOracle} from "./interfaces/ISnarkBasedFeeOracle.sol";
+import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 import {SnarkBasedFeeOracle} from "./SnarkBasedFeeOracle.sol";
 import {console} from "forge-std/console.sol";
 
@@ -87,10 +87,9 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         IPoolManager.SwapParams calldata swapData,
         bytes calldata
     ) external override returns (bytes4, BeforeSwapDelta, uint24) {
-        uint256 volatility = ISnarkBasedFeeOracle(feeOracle).getVolatility();
-        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility, swapData.sqrtPriceLimitX96);
+        bytes memory feeData = abi.encode(abs(swapData.amountSpecified), swapData.sqrtPriceLimitX96);
+        uint24 fee = IFeeOracle(feeOracle).getFee(feeData);
         poolManager.updateDynamicLPFee(key, fee);
-
         emit FeeUpdate(fee, block.timestamp);
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
     }
@@ -99,30 +98,5 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         feeOracle = _feeOracle;
     } 
 
- function calculateFee(uint256 volume, uint256 volatility, uint256 price) public view returns (uint24) {
-    // console.log(volume);
-    // console.log(volatility);
-    // console.log(price);
-
-    // Normalize inputs
-    uint256 maxVolume = 1e18; // max value for volume
-    uint256 maxVolatility = 1e9; // max value for volatility
-    uint256 maxPrice = 1e10; //  max value for price
-
-    uint256 normalizedVolume = volume * 1e18 / maxVolume;
-    uint256 normalizedVolatility = volatility * 1e18 / maxVolatility;
-    uint256 normalizedPrice = price * 1e18 / maxPrice;
-
-    uint256 value = (normalizedVolume + normalizedVolatility + normalizedPrice) / 3;
-
-    // Scale combined value to fee range
-    uint256 minFee = 1000;
-    //TODO: should the max fee exceed some limit?
-    uint256 maxFee = 100000;
-
-    uint256 fee = minFee + (value * (maxFee - minFee) / 1e18);
-
-    return uint24(fee);
-    }
 
 }

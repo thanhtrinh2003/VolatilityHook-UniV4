@@ -21,7 +21,7 @@ contract FeeOracle is IFeeOracle, Ownable {
         fee = _fee;
     }
 
-    function getFee() external view override returns (uint24) {
+    function getFee(bytes calldata data) external view override returns (uint24) {
         return fee;
     }
 
