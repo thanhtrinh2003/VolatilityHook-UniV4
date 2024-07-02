@@ -12,6 +12,8 @@ contract SnarkBasedFeeOracle is RvVerifier, Ownable {
     uint public constant ln_1_0001 = 109945666;
     uint256 public price;
 
+    event VolatilityUpdated(uint256 newRv);
+
     constructor(bytes32 _programKey) RvVerifier(_programKey) Ownable(msg.sender) {}
 
     /// @notice The entrypoint for verifying the proof and updating state variables.
@@ -42,6 +44,9 @@ contract SnarkBasedFeeOracle is RvVerifier, Ownable {
 
         // Convert from tick log base to ln base for textbook realized volatility
         rv = s * ln_1_0001 >> fraction_bits;
+
+        // Emit the VolatilityUpdated event
+        emit VolatilityUpdated(rv);
     }
 
     function n_sqrt_test(bytes8 n_inv_sqrt, bytes8 n_bytes) public pure returns (bool) {
