@@ -12,12 +12,14 @@ import {PoolKey} from "@v4-core/types/PoolKey.sol";
 import {CurrencyLibrary, Currency} from "@v4-core/types/Currency.sol";
 import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 
+import {Hooks} from "@v4-core/libraries/Hooks.sol";
 
+import {HookMiner} from "contracts/utils/HookMiner.sol";
 import {SemioticsUSDC} from "./mocks/SemioticsUSDC.sol";
 import {SemioticsETH} from "./mocks/SemioticsETH.sol";
 import {RvVerifier} from "src/RvVerifier.sol";
 import {SnarkBasedFeeOracle} from "src/SnarkBasedFeeOracle.sol";
-import {OracleBasedHook} from "src/OracleBasedHook.sol";
+import {OracleBasedFeeHook} from "src/OracleBasedFeeHook.sol";
 
 contract DeploymentScript is Script {
     using CurrencyLibrary for Currency;
@@ -26,7 +28,7 @@ contract DeploymentScript is Script {
     address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14); 
     address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080); 
 
-    IPoolManager manager = IPoolManager(POOLMANAGER);
+    IPoolManager poolManager = IPoolManager(POOLMANAGER);
     PoolModifyLiquidityTest lpRouter = PoolModifyLiquidityTest(address(0x2b925D1036E2E17F79CF9bB44ef91B95a3f9a084));
 
     address deployer;
@@ -46,7 +48,7 @@ contract DeploymentScript is Script {
 
         //________________________________ Deploy Verifier/Oracle ________________________________//
         bytes32 programKey = 0x00dc70908ac47157cd47feacd62a458f405707ffbcea526fcd5620aedd5d828d;
-        SnarkBasedFeeOracle snarkBasedFeeOracle = new SnarkBasedFeeOracle(programKey);
+        SnarkBasedFeeOracle feeOracle = new SnarkBasedFeeOracle(programKey);
 
         //________________________________ Deploy Hook ___________________________________________//
         uint160 flags = uint160(
@@ -96,7 +98,7 @@ contract DeploymentScript is Script {
         console.logBytes32(bytes32(idBytes));
 
         //Create pool
-        manager.initialize(pool, startingPrice, hookData);
+        poolManager.initialize(pool, startingPrice, hookData);
 
         // Provide 10_000e18 worth of liquidity on the range of [-600, 600]
         lpRouter.modifyLiquidity(pool, IPoolManager.ModifyLiquidityParams(-887220, 887220, 10000000e18, 0), hookData);
