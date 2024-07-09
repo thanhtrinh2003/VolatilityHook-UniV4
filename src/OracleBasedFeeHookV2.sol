@@ -12,11 +12,9 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ISnarkBasedFeeOracle} from "./interfaces/ISnarkBasedFeeOracle.sol";
 import {SnarkBasedFeeOracle} from "./SnarkBasedFeeOracle.sol";
 import {console} from "forge-std/console.sol";
-import {CalcFeeUtils} from "./CalcFeeUtils.sol";
 
 contract OracleBasedFeeHookV2 is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
-    using CalcFeeUtils for int256;
 
     uint256 public constant MIN_FEE = 1000;
     
