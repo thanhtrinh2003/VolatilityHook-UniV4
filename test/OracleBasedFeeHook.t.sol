@@ -12,11 +12,11 @@ import {PoolSwapTest} from "@v4-core/test/PoolSwapTest.sol";
 import {TickMath} from "@v4-core/libraries/TickMath.sol";
 import {OracleBasedFeeHook} from "../src/OracleBasedFeeHook.sol";
 import {OracleBasedFeeHookImp} from "./implementation/OracleBasedFeeHookImp.sol";
-import {FeeOracle} from "../src/FeeOracle.sol";
 import {SnarkBasedFeeOracle} from "../src/SnarkBasedFeeOracle.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {HookMiner} from "contracts/utils/HookMiner.sol";
 import {BalanceDelta} from "@v4-core/types/BalanceDelta.sol";
+import {CalcFeeLib} from "../src/Calc/CalcFeeLib.sol";
 
 import {console} from "forge-std/console.sol";
 
@@ -71,9 +71,9 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         address flags = address(uint160(Hooks.BEFORE_INITIALIZE_FLAG | Hooks.BEFORE_SWAP_FLAG));
         bytes32 programKey = 0x0006adb3831affa6e27ba51eea3a95b6339057ff9938311a68739bb8d5f5aef4;
         oracle = new SnarkBasedFeeOracle(programKey);
+        CalcFeeLib calcLib = new CalcFeeLib(address(oracle));
 
-
-        deployCodeTo("OracleBasedFeeHook.sol:OracleBasedFeeHook", abi.encode(manager, oracle), flags);
+        deployCodeTo("OracleBasedFeeHook.sol:OracleBasedFeeHook", abi.encode(manager, calcLib), flags);
     
         hook = OracleBasedFeeHook(flags);
 
@@ -131,7 +131,6 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         // ------------------- //
 
         // //TODO: assert correct fee was applied to swap, with another swap
-
         assertEq(int256(swapDelta.amount0()), amountSpecified);
 
 

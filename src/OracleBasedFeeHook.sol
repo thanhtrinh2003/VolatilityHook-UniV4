@@ -12,7 +12,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 import {SnarkBasedFeeOracle} from "./SnarkBasedFeeOracle.sol";
 import {console} from "forge-std/console.sol";
-
+import {ICalcFee} from "./interfaces/ICalcFee.sol";
 contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
@@ -20,23 +20,18 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
     
     error MustUseDynamicFee();
 
-
-
     uint32 deployTimestamp;
 
-    address public feeOracle;
+    ICalcFee public calcLib;
 
 
     event FeeUpdate(uint256 indexed newFee, uint256 timestamp);
 
-
-
     constructor(
         IPoolManager _poolManager,
-        address _feeOracle
+        address _calcLib 
     ) BaseHook(_poolManager) Ownable(msg.sender) {
-        console.log("Deploying OracleBasedFeeHook");
-        feeOracle = _feeOracle; 
+        calcLib  = ICalcFee(_calcLib); 
     }
 
     function getHookPermissions()
@@ -88,14 +83,14 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         bytes calldata
     ) external override returns (bytes4, BeforeSwapDelta, uint24) {
         bytes memory feeData = abi.encode(abs(swapData.amountSpecified), swapData.sqrtPriceLimitX96);
-        uint24 fee = IFeeOracle(feeOracle).getFee(feeData);
+        uint24 fee = calcLib.getFee(feeData);
         poolManager.updateDynamicLPFee(key, fee);
         emit FeeUpdate(fee, block.timestamp);
         return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
     }
 
-    function setFeeOracle(address _feeOracle) external onlyOwner {
-        feeOracle = _feeOracle;
+    function setCalcLib(address _calcLib) external onlyOwner {
+        calcLib = ICalcFee(_calcLib);
     } 
 
 
