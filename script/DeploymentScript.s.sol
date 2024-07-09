@@ -14,7 +14,9 @@ import {PoolKey} from "@v4-core/types/PoolKey.sol";
 import {CurrencyLibrary, Currency} from "@v4-core/types/Currency.sol";
 import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 
+import {Hooks} from "@v4-core/libraries/Hooks.sol";
 
+import {HookMiner} from "contracts/utils/HookMiner.sol";
 import {SemioticsUSDC} from "./mocks/SemioticsUSDC.sol";
 import {SemioticsETH} from "./mocks/SemioticsETH.sol";
 import {RvVerifier} from "src/RvVerifier.sol";
@@ -48,7 +50,7 @@ contract DeploymentScript is Script {
 
         //________________________________ Deploy Verifier/Oracle ________________________________//
         bytes32 programKey = 0x00dc70908ac47157cd47feacd62a458f405707ffbcea526fcd5620aedd5d828d;
-        SnarkBasedFeeOracle snarkBasedFeeOracle = new SnarkBasedFeeOracle(programKey);
+        SnarkBasedFeeOracle feeOracle = new SnarkBasedFeeOracle(programKey);
 
         //________________________________ Deploy Hook ___________________________________________//
         uint160 flags = uint160(
