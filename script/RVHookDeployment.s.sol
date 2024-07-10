@@ -9,10 +9,8 @@ import {ICREATE3Factory} from "@create3-factory/ICREATE3Factory.sol";
 import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 
-import {FeeOracle} from "contracts/FeeOracle.sol";
 import {SnarkBasedFeeOracle} from "contracts/SnarkBasedFeeOracle.sol";
 import {OracleBasedFeeHook} from "contracts/OracleBasedFeeHook.sol";
-import {MarketDataProvider} from "contracts/MarketDataProvider.sol";
 
 import {Deployer} from "contracts/Deployer.sol";
 
