@@ -12,7 +12,7 @@ import {PoolSwapTest} from "@v4-core/test/PoolSwapTest.sol";
 import {TickMath} from "@v4-core/libraries/TickMath.sol";
 import {OracleBasedFeeHook} from "../src/OracleBasedFeeHook.sol";
 import {OracleBasedFeeHookImp} from "./implementation/OracleBasedFeeHookImp.sol";
-import {SnarkBasedFeeOracle} from "../src/SnarkBasedFeeOracle.sol";
+import {SnarkBasedVolatilityOracle} from "../src/SnarkBasedVolatilityOracle.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {HookMiner} from "contracts/utils/HookMiner.sol";
 import {BalanceDelta} from "@v4-core/types/BalanceDelta.sol";
@@ -37,7 +37,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
     using CurrencyLibrary for Currency;
     using stdJson for string;
     OracleBasedFeeHook hook;
-    SnarkBasedFeeOracle oracle;
+    SnarkBasedVolatilityOracle oracle;
     PoolId poolId;
 
     address oracleOwner = address(1);
@@ -70,7 +70,7 @@ contract TestOracleBasedFeeHook is Test, Deployers {
         // Deploy the hook to an address with the correct flags
         address flags = address(uint160(Hooks.BEFORE_INITIALIZE_FLAG | Hooks.BEFORE_SWAP_FLAG));
         bytes32 programKey = 0x0006adb3831affa6e27ba51eea3a95b6339057ff9938311a68739bb8d5f5aef4;
-        oracle = new SnarkBasedFeeOracle(programKey);
+        oracle = new SnarkBasedVolatilityOracle(programKey);
         CalcFeeLib calcLib = new CalcFeeLib(address(oracle));
 
         deployCodeTo("OracleBasedFeeHook.sol:OracleBasedFeeHook", abi.encode(manager, calcLib), flags);

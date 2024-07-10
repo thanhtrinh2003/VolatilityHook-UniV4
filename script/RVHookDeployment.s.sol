@@ -9,7 +9,7 @@ import {ICREATE3Factory} from "@create3-factory/ICREATE3Factory.sol";
 import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 
-import {SnarkBasedFeeOracle} from "contracts/SnarkBasedFeeOracle.sol";
+import {SnarkBasedVolatilityOracle} from "contracts/SnarkBasedVolatilityOracle.sol";
 import {OracleBasedFeeHook} from "contracts/OracleBasedFeeHook.sol";
 
 import {Deployer} from "contracts/Deployer.sol";
@@ -32,7 +32,7 @@ contract hookDeployment is Script {
 
         //Deploy verifier, fee oracle
         bytes32 programKey = 0x00dc70908ac47157cd47feacd62a458f405707ffbcea526fcd5620aedd5d828d;
-        SnarkBasedFeeOracle snarkBasedFeeOracle = new SnarkBasedFeeOracle(programKey);
+        SnarkBasedVolatilityOracle oracle = new SnarkBasedVolatilityOracle(programKey);
 
         vm.stopBroadcast();
 
@@ -45,7 +45,7 @@ contract hookDeployment is Script {
             create2,
             flags,
             type(OracleBasedFeeHook).creationCode,
-            abi.encode(IPoolManager(poolManager), address(snarkBasedFeeOracle))
+            abi.encode(IPoolManager(poolManager), address(oracle))
         );
 
         console.logBytes32(salt);
@@ -54,12 +54,12 @@ contract hookDeployment is Script {
 
         OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(
             IPoolManager(poolManager),
-            address(snarkBasedFeeOracle)
+            address(oracle)
         );
 
         vm.stopBroadcast();
 
-        console.log("Fee Oracle: ", address(snarkBasedFeeOracle));
+        console.log("Fee Oracle: ", address(oracle));
         console.log("Hook: ", address(hook));
     }
 }

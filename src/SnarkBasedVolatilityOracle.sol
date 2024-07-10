@@ -5,7 +5,7 @@ import {RvVerifier} from "./RvVerifier.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SnarkBasedFeeOracle is RvVerifier, Ownable {
+contract SnarkBasedVolatilityOracle is RvVerifier, Ownable {
     uint256 public s;
     uint256 public rv;
     uint256 public constant fraction_bits = 40;

@@ -18,7 +18,7 @@ import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 import {SemioticsUSDC} from "./mocks/SemioticsUSDC.sol";
 import {SemioticsETH} from "./mocks/SemioticsETH.sol";
 import {RvVerifier} from "src/RvVerifier.sol";
-import {SnarkBasedFeeOracle} from "src/SnarkBasedFeeOracle.sol";
+import {SnarkBasedVolatilityOracle} from "src/SnarkBasedVolatilityOracle.sol";
 import {OracleBasedFeeHook} from "src/OracleBasedFeeHook.sol";
 
 contract DeploymentScript is Script {
@@ -48,7 +48,7 @@ contract DeploymentScript is Script {
 
         //________________________________ Deploy Verifier/Oracle ________________________________//
         bytes32 programKey = 0x00dc70908ac47157cd47feacd62a458f405707ffbcea526fcd5620aedd5d828d;
-        SnarkBasedFeeOracle snarkBasedFeeOracle = new SnarkBasedFeeOracle(programKey);
+        SnarkBasedVolatilityOracle oracle = new SnarkBasedVolatilityOracle(programKey);
 
         //________________________________ Deploy Hook ___________________________________________//
         uint160 flags = uint160(
@@ -59,12 +59,12 @@ contract DeploymentScript is Script {
             create2,
             flags,
             type(OracleBasedFeeHook).creationCode,
-            abi.encode(IPoolManager(poolManager), address(snarkBasedFeeOracle))
+            abi.encode(IPoolManager(poolManager), address(oracle))
         );
 
         OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(
             IPoolManager(poolManager),
-            address(snarkBasedFeeOracle)
+            address(oracle)
         );
 
         //________________________________ Modifying Pool ___________________________________________//
