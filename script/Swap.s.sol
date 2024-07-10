@@ -13,15 +13,14 @@ import {CurrencyLibrary, Currency} from "@v4-core/types/Currency.sol";
 import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 import {TickMath} from "@v4-core/libraries/TickMath.sol";
 
-
 contract SwapScript is Script {
     // PoolSwapTest Contract address on Goerli
     PoolSwapTest swapRouter = PoolSwapTest(0xB8b53649b87F0e1eb3923305490a5cB288083f82);
 
-    address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14); 
-    address constant SETH_ADDRESS = address(0xcff8733a17a0e5Dbb22D36AdEB806F2E63879858); 
-    address constant SUSDC_ADDRESS = address(0x6C1234d626C98138fAE37742Dd5B08F43FbA9475); 
-    address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080); 
+    address constant POOLMANAGER = address(0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14);
+    address constant SETH_ADDRESS = address(0xcff8733a17a0e5Dbb22D36AdEB806F2E63879858);
+    address constant SUSDC_ADDRESS = address(0x6C1234d626C98138fAE37742Dd5B08F43FbA9475);
+    address constant HOOK_ADDRESS = address(0x344778Db62D10706df880dAC7B0E680a01DF2080);
 
     // slippage tolerance to allow for unlimited price impact
     uint160 public constant MIN_PRICE_LIMIT = TickMath.MIN_SQRT_PRICE + 1;
@@ -34,7 +33,6 @@ contract SwapScript is Script {
         deployer = vm.rememberKey(deployerPrivateKey);
 
         vm.startBroadcast(deployer);
-
 
         address token0 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SUSDC_ADDRESS : SETH_ADDRESS;
         address token1 = uint160(SUSDC_ADDRESS) < uint160(SETH_ADDRESS) ? SETH_ADDRESS : SUSDC_ADDRESS;

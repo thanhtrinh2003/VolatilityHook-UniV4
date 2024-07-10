@@ -37,9 +37,7 @@ contract hookDeployment is Script {
         vm.stopBroadcast();
 
         //Deploy hook
-        uint160 flags = uint160(
-            Hooks.BEFORE_INITIALIZE_FLAG | Hooks.BEFORE_SWAP_FLAG
-        );
+        uint160 flags = uint160(Hooks.BEFORE_INITIALIZE_FLAG | Hooks.BEFORE_SWAP_FLAG);
 
         (, bytes32 salt) = HookMiner.find(
             create2,
@@ -52,10 +50,7 @@ contract hookDeployment is Script {
 
         vm.startBroadcast(deployer);
 
-        OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(
-            IPoolManager(poolManager),
-            address(oracle)
-        );
+        OracleBasedFeeHook hook = new OracleBasedFeeHook{salt: salt}(IPoolManager(poolManager), address(oracle));
 
         vm.stopBroadcast();
 

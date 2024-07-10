@@ -7,7 +7,9 @@ import {IPoolManager} from "@v4-core/interfaces/IPoolManager.sol";
 import {Hooks} from "@v4-core/libraries/Hooks.sol";
 
 contract OracleBasedFeeHookImp is OracleBasedFeeHook {
-    constructor(IPoolManager poolManager, OracleBasedFeeHook addressToEtch, address feeOracle) OracleBasedFeeHook(poolManager, feeOracle) {
+    constructor(IPoolManager poolManager, OracleBasedFeeHook addressToEtch, address feeOracle)
+        OracleBasedFeeHook(poolManager, feeOracle)
+    {
         Hooks.validateHookPermissions(addressToEtch, getHookPermissions());
     }
 

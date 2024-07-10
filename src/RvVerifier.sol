@@ -17,20 +17,19 @@ contract RvVerifier is SP1Verifier {
     function setProgramKey(bytes32 _programKey) public {
         programKey = _programKey;
     }
-    
+
     /// @notice The entrypoint for verifying the proof of a realized volatility calculation.
     /// @param proof The encoded proof.
     /// @param publicValues The encoded public values.
     /// @dev the public values are better explained in the SP1 `program`
-    function verifyRvProof( 
-        bytes memory proof,
-        bytes memory publicValues
-    ) public view returns (bytes8,  bytes8, bytes8, bytes8, bytes32 ) {
+    function verifyRvProof(bytes memory proof, bytes memory publicValues)
+        public
+        view
+        returns (bytes8, bytes8, bytes8, bytes8, bytes32)
+    {
         this.verifyProof(programKey, publicValues, proof);
-        (bytes8 n_inv_sqrt, bytes8 n1_inv, bytes8 s2, bytes8 n_bytes, bytes32 digest) = abi.decode(
-            publicValues,
-            (bytes8, bytes8, bytes8, bytes8, bytes32)
-        ); 
-        return (n_inv_sqrt, n1_inv, s2, n_bytes, digest); 
+        (bytes8 n_inv_sqrt, bytes8 n1_inv, bytes8 s2, bytes8 n_bytes, bytes32 digest) =
+            abi.decode(publicValues, (bytes8, bytes8, bytes8, bytes8, bytes32));
+        return (n_inv_sqrt, n1_inv, s2, n_bytes, digest);
     }
 }
