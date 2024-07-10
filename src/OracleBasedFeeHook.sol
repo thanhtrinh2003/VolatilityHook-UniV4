@@ -10,7 +10,7 @@ import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@v4-core/types/BeforeSwap
 import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
-import {SnarkBasedFeeOracle} from "./SnarkBasedFeeOracle.sol";
+import {SnarkBasedVolatilityOracle} from "./SnarkBasedVolatilityOracle.sol";
 import {console} from "forge-std/console.sol";
 import {ICalcFee} from "./interfaces/ICalcFee.sol";
 contract OracleBasedFeeHook is BaseHook, Ownable {

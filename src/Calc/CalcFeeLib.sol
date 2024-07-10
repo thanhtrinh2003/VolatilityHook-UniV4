@@ -3,14 +3,14 @@
 pragma solidity ^0.8.0;
 
 import {ICalcFee} from "../interfaces/ICalcFee.sol";
-import {ISnarkBasedFeeOracle} from "../interfaces/ISnarkBasedFeeOracle.sol";
+import {IVolatilityOracle} from "../interfaces/IVolatilityOracle.sol";
 
 contract CalcFeeLib is ICalcFee {
 
-    ISnarkBasedFeeOracle public oracle; 
+    IVolatilityOracle public oracle; 
 
         constructor(address _oracle) {
-            oracle = ISnarkBasedFeeOracle(_oracle);
+            oracle = IVolatilityOracle(_oracle);
         }
 
 
