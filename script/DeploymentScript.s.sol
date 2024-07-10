@@ -73,15 +73,15 @@ contract DeploymentScript is Script {
         
         uint24 swapFee = 0x800000;
         int24 tickSpacing = 60;
-
-        uint160 startingPrice = 4819260982861451012142998631604;
-
+        
+        uint160 startingPrice = 4339505179874779672736325173248;
+ 
         PoolKey memory pool = PoolKey({
             currency0: Currency.wrap(token0),
             currency1: Currency.wrap(token1),
             fee: swapFee,
             tickSpacing: tickSpacing,
-            hooks: IHooks(HOOK_ADDRESS)
+            hooks: IHooks(hook)
         });
 
         // approve tokens to the LP Router
@@ -102,5 +102,10 @@ contract DeploymentScript is Script {
 
         // Provide 10_000e18 worth of liquidity on the range of [-600, 600]
         lpRouter.modifyLiquidity(pool, IPoolManager.ModifyLiquidityParams(-887220, 887220, 10000000e18, 0), hookData);
+
+        //________________________________ Faucet Deployment ___________________________________________//
+        Faucet faucet = new Faucet(SETH_ADDRESS, SUSDC_ADDRESS);
+        ERC20(SETH_ADDRESS).transfer(address(faucet), ERC20(SETH_ADDRESS).balanceOf(deployer));
+        ERC20(SUSDC_ADDRESS).transfer(address(faucet), ERC20(SUSDC_ADDRESS).balanceOf(deployer));
     }
 }
