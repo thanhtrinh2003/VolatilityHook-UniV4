@@ -13,58 +13,49 @@ import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 import {SnarkBasedVolatilityOracle} from "./SnarkBasedVolatilityOracle.sol";
 import {console} from "forge-std/console.sol";
 import {ICalcFee} from "./interfaces/ICalcFee.sol";
+
 contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
     uint256 public constant MIN_FEE = 1000;
-    
+
     error MustUseDynamicFee();
 
     uint32 deployTimestamp;
 
     ICalcFee public calcLib;
 
-
     event FeeUpdate(uint256 indexed newFee, uint256 timestamp);
 
-    constructor(
-        IPoolManager _poolManager,
-        address _calcLib 
-    ) BaseHook(_poolManager) Ownable(msg.sender) {
-        calcLib  = ICalcFee(_calcLib); 
+    constructor(IPoolManager _poolManager, address _calcLib) BaseHook(_poolManager) Ownable(msg.sender) {
+        calcLib = ICalcFee(_calcLib);
     }
 
-    function getHookPermissions()
-        public
+    function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
+        return Hooks.Permissions({
+            beforeInitialize: true,
+            afterInitialize: false,
+            beforeAddLiquidity: false,
+            beforeRemoveLiquidity: false,
+            afterAddLiquidity: false,
+            afterRemoveLiquidity: false,
+            beforeSwap: true,
+            afterSwap: false,
+            beforeDonate: false,
+            afterDonate: false,
+            beforeSwapReturnDelta: false,
+            afterSwapReturnDelta: false,
+            afterAddLiquidityReturnDelta: false,
+            afterRemoveLiquidityReturnDelta: false
+        });
+    }
+
+    function beforeInitialize(address, PoolKey calldata key, uint160, bytes calldata)
+        external
         pure
         override
-        returns (Hooks.Permissions memory)
+        returns (bytes4)
     {
-        return
-            Hooks.Permissions({
-                beforeInitialize: true,
-                afterInitialize: false,
-                beforeAddLiquidity: false,
-                beforeRemoveLiquidity: false,
-                afterAddLiquidity: false,
-                afterRemoveLiquidity: false,
-                beforeSwap: true,
-                afterSwap: false,
-                beforeDonate: false,
-                afterDonate: false,
-                beforeSwapReturnDelta: false,
-                afterSwapReturnDelta: false,
-                afterAddLiquidityReturnDelta: false,
-                afterRemoveLiquidityReturnDelta: false
-            });
-    }
-
-    function beforeInitialize(
-        address,
-        PoolKey calldata key,
-        uint160,
-        bytes calldata
-    ) external pure override returns (bytes4) {
         if (!key.fee.isDynamicFee()) revert MustUseDynamicFee();
         return this.beforeInitialize.selector;
     }
@@ -76,12 +67,11 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         return uint256(-x);
     }
 
-    function beforeSwap(
-        address,
-        PoolKey calldata key,
-        IPoolManager.SwapParams calldata swapData,
-        bytes calldata
-    ) external override returns (bytes4, BeforeSwapDelta, uint24) {
+    function beforeSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata swapData, bytes calldata)
+        external
+        override
+        returns (bytes4, BeforeSwapDelta, uint24)
+    {
         bytes memory feeData = abi.encode(abs(swapData.amountSpecified), swapData.sqrtPriceLimitX96);
         uint24 fee = calcLib.getFee(feeData);
         poolManager.updateDynamicLPFee(key, fee);
@@ -91,7 +81,5 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
 
     function setCalcLib(address _calcLib) external onlyOwner {
         calcLib = ICalcFee(_calcLib);
-    } 
-
-
+    }
 }

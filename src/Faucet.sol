@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract Faucet  {
+contract Faucet {
     address public Semiotics_ETH;
     address public Semiotics_USDC;
 
