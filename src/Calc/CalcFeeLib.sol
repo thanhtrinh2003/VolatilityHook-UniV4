@@ -14,7 +14,7 @@ contract CalcFeeLib is ICalcFee {
 
     function getFee(bytes calldata data) external view returns (uint24) {
         (uint256 volume, uint160 sqrtPriceLimit) = abi.decode(data, (uint256, uint160));
-        calculateFee(volume, oracle.getVolatility(), sqrtPriceLimit);
+        return calculateFee(volume, oracle.getVolatility(), sqrtPriceLimit);
     }
 
     function calculateFee(uint256 volume, uint256 volatility, uint256 price) public pure returns (uint24) {
