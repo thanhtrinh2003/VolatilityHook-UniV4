@@ -18,6 +18,7 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
 
     uint256 public constant MIN_FEE = 1000;
+    address DEV_WALLET = 0x32ac74279777aB4E4885f1deF2ED09D78048081C;
 
     error MustUseDynamicFee();
 
@@ -27,7 +28,7 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
 
     event FeeUpdate(uint256 indexed newFee, uint256 timestamp);
 
-    constructor(IPoolManager _poolManager, address _calcLib) BaseHook(_poolManager) Ownable(msg.sender) {
+    constructor(IPoolManager _poolManager, address _calcLib) BaseHook(_poolManager) Ownable(DEV_WALLET) {
         calcLib = ICalcFee(_calcLib);
     }
 
