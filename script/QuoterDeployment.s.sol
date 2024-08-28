@@ -12,12 +12,12 @@ import {PoolKey} from "@v4-core/types/PoolKey.sol";
 import {CurrencyLibrary, Currency} from "@v4-core/types/Currency.sol";
 import {PoolId, PoolIdLibrary} from "@v4-core/types/PoolId.sol";
 import {Faucet} from "contracts/Faucet.sol";
+import {Quoter} from "@v4-periphery/lens/Quoter.sol";
 
-contract FaucetDeployment is Script {
+contract QuoterDeployment is Script {
     using CurrencyLibrary for Currency;
 
-    address constant SETH_ADDRESS = address(0x000D25621951a6C10F22377fef91df9a7Eb3042C); 
-    address constant SUSDC_ADDRESS = address(0xb3a9E7d346982164404949bB5647A1A7C44cC025); 
+    address poolManager = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
 
     address deployer;
 
@@ -28,8 +28,6 @@ contract FaucetDeployment is Script {
         vm.startBroadcast(deployer);
 
         // Deploy Faucet
-        Faucet faucet = new Faucet(SETH_ADDRESS, SUSDC_ADDRESS);
-        IERC20(SETH_ADDRESS).transfer(address(faucet), IERC20(SETH_ADDRESS).balanceOf(deployer)-100e18);
-        IERC20(SUSDC_ADDRESS).transfer(address(faucet), IERC20(SUSDC_ADDRESS).balanceOf(deployer)-100e18);
+        Quoter quoter = new Quoter(poolManager);
     }
 }
