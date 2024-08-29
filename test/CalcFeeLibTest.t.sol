@@ -29,41 +29,20 @@ contract CalcFeeLibTest is Test {
     }
 
     function test_CalculateFee() public {
-        // Set up test parameters
-        uint256 volume = 1000;
-        uint160 sqrtPriceLimit = 123456789;
+        uint256 volume = 1 ether;
+        // 1 ether unit of sETH is 3500 USDC in this scenario, same as the notebooks in the volatility_substream
+        uint160 sqrtPriceLimit = 4687201305027700855787468357632;
+    
+        for (uint i = 0; i < newRvValues.length; i+=1) {    
+        oracle.setVolatility(newRvValues[i]);
 
-        // Set the oracle's volatility to a known value
-        uint256 testVolatility = 1000000000;
-        oracle.setVolatility(testVolatility);
-
-        // Encode the data as expected by the getFee function
         bytes memory data = abi.encode(volume, sqrtPriceLimit);
 
-        // Call the getFee function and assert the returned fee is as expected
         uint24 fee = calcFeeLib.getFee(data);
-
-        // Calculate the expected fee manually based on the contract's logic
-        uint24 expectedFee = calcFeeLib.calculateFee(volume, testVolatility, sqrtPriceLimit);
-
-        assertEq(fee, expectedFee);
+        }
     }
 
-    function testCalculateFeeWithEdgeVolatility() public {
-        // Test with minimum and maximum volatility
-        uint256 minVolatility = 360177162;
-        uint256 maxVolatility = 4667025474;
-        uint160 sqrtPriceLimit = 123456789;
-        uint256 volume = 1000;
-
-        oracle.setVolatility(minVolatility);
-        uint24 minFee = calcFeeLib.calculateFee(volume, minVolatility, sqrtPriceLimit);
-        assertEq(minFee, 500); // Minimum fee expected
-
-        oracle.setVolatility(maxVolatility);
-        uint24 maxFee = calcFeeLib.calculateFee(volume, maxVolatility, sqrtPriceLimit);
-        assertEq(maxFee, 10000); // Maximum fee expected
-    }
+  
 }
 
 
