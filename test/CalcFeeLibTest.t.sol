@@ -35,10 +35,10 @@ contract CalcFeeLibTest is Test {
     
         for (uint i = 0; i < newRvValues.length; i+=1) {    
         oracle.setVolatility(newRvValues[i]);
-
         bytes memory data = abi.encode(volume, sqrtPriceLimit);
 
         uint24 fee = calcFeeLib.getFee(data);
+        console.log("fee in bips", fee);
         }
     }
 
