@@ -68,7 +68,7 @@ contract CalcFeeLib is ICalcFee {
         uint num_shift_bits = 2*X96_BITS - NUM_FRAC_BITS;
         
         
-        uint fee_percent_fixed = (fee_per_lot << num_shift_bits) / (price);
+        uint fee_percent_fixed = (fee_per_lot << num_shift_bits) / (price >> X96_BITS);
         
         // to go from fixed-point to bips we need to multiply our fixed-point number by 10_000 and shift right by the scale factor
         uint fee_percent_bips = (10000 * fee_percent_fixed) >> X96_BITS;
