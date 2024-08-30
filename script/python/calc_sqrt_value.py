@@ -25,5 +25,5 @@ sqrt_price_x96 = 4687201305027700855787468357632
 price = sqrt_price_x96_to_price(sqrt_price_x96)
 print(f"The price is: {price}")
 
-sqrt_price = price_to_sqrt_price_x96(3500)
+sqrt_price = price_to_sqrt_price_x96(3700)
 print(f"The sqrt_price is: {sqrt_price}")

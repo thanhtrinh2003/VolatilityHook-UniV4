@@ -30,9 +30,8 @@ contract CalcFeeLibTest is Test {
 
     function test_CalculateFee() public {
         uint256 volume = 1 ether;
-        // 1 ether unit of sETH is 3500 USDC in this scenario, same as the notebooks in the volatility_substream
-        uint160 sqrtPriceLimit = 4687201305027700855787468357632;
-    
+        // 1 ether unit of sETH is 3700 USDC in this scenario, same as the notebooks in the volatility_substream
+        uint160 sqrtPriceLimit = 4819260982861451157002617094144;
         for (uint i = 0; i < newRvValues.length; i+=1) {    
         oracle.setVolatility(newRvValues[i]);
         bytes memory data = abi.encode(volume, sqrtPriceLimit);
