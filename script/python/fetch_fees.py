@@ -5,7 +5,7 @@ url = "https://api.studio.thegraph.com/proxy/53925/swap-subgraph/v0.0.4"
 
 query = """
 query highestNewRv($first: Int, $skip: Int) {
-  volatilityUpdateds(first: $first, skip: $skip, orderBy: newRv, orderDirection: asc, subgraphError: allow) {
+  volatilityUpdateds(first: $first, skip: $skip, orderBy: blockTimestamp, orderDirection: asc, subgraphError: allow) {
     id
     newRv
     blockNumber
@@ -15,7 +15,7 @@ query highestNewRv($first: Int, $skip: Int) {
 """
 
 def fetch_all_volatility_updates():
-    all_new_rv_values = []
+    all_volatility_updates = []
     skip = 0
     first = 500
 
@@ -35,22 +35,29 @@ def fetch_all_volatility_updates():
         entries = data['data']['volatilityUpdateds']
         
         for entry in entries:
-            all_new_rv_values.append(int(entry['newRv']))
+            # Collecting newRv and blockTimestamp as an object
+            all_volatility_updates.append({
+                "newRv": int(entry['newRv']),
+                "blockTimestamp": int(entry['blockTimestamp'])
+            })
 
         if len(entries) < first:
             break
 
         skip += first
 
-    return all_new_rv_values
+    # Optionally sort again by blockTimestamp (if not already sorted by the GraphQL query)
+    all_volatility_updates.sort(key=lambda x: x['blockTimestamp'])
 
-new_rv_values = fetch_all_volatility_updates()
+    return all_volatility_updates
+
+volatility_updates = fetch_all_volatility_updates()
 
 output_data = {
-    "newRvValues": new_rv_values
+    "volatilityUpdates": volatility_updates
 }
 
 with open('volatility_updates.json', 'w') as f:
     json.dump(output_data, f, indent=4)
 
-print(f"Saved {len(new_rv_values)} newRv values to volatility_updates.json")
+print(f"Saved {len(volatility_updates)} volatility updates to volatility_updates.json")
