@@ -28,20 +28,6 @@ library Math {
     }
 }
 
-contract PriceConverter {
-    using Math for uint256;
-
-    function getSqrtPriceX96(uint256 normalPrice) external pure returns (uint256) {
-        // Take the square root of the normal price
-        uint256 sqrtPrice = normalPrice.sqrt();
-        
-        // Multiply by 2^96
-        uint256 sqrtPriceX96 = sqrtPrice * (2**96);
-        
-        return sqrtPriceX96;
-    }
-}
-
 contract QuoterTest is Script {
     using CurrencyLibrary for Currency;
     using Math for uint256;
@@ -54,14 +40,13 @@ contract QuoterTest is Script {
     address SUSDC_ADDRESS = 0xDbAbbF55373421fb029c9E7394F4a4FE5d47D698;
     address deployer;
 
-    PoolKey memory pool = PoolKey({
+    PoolKey public pool = PoolKey({
         currency0: Currency.wrap(token0),
         currency1: Currency.wrap(token1),
         fee: 0x800000,
         tickSpacing: 60,
         hooks: IHooks(hook)
     });
-
 
     function setUp() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -78,21 +63,19 @@ contract QuoterTest is Script {
     function getSqrtPriceX96(uint256 normalPrice) private pure returns (uint256) {
         // Take the square root of the normal price
         uint256 sqrtPrice = normalPrice.sqrt();
-        
         // Multiply by 2^96
-        uint256 sqrtPriceX96 = sqrtPrice * (2**96);
-        
-        return sqrtPriceX96
+        uint256 sqrtPriceX96 = sqrtPrice * (2 ** 96);
+
+        return sqrtPriceX96;
     }
 
     function testFeeFromZeroForOne() public {
-        uint _swapAmount  = 1e18;
-        uint _slippage = 20;
+        uint256 _swapAmount = 1e18;
+        uint256 _slippage = 20;
         uint160 _sqrtPriceX96 = getSqrtPriceX96(_swapAmount);
-        uint160 _sqrtPriceX96Limit = _sqrtPriceX96 * (100+_slippage) / 100; //Slippage 20%
+        uint160 _sqrtPriceX96Limit = _sqrtPriceX96 * (100 + _slippage) / 100; //Slippage 20%
         bool _zeroForOne = true;
-        
-        
+
         // ______________________________________________
         IPoolManager.SwapParams memory swapParam = IPoolManager.SwapParams({
             zeroForOne: _zeroForOne,
@@ -100,7 +83,7 @@ contract QuoterTest is Script {
             sqrtPriceLimitX96: _sqrtPriceX96Limit
         });
 
-        IQuoter.QuoteExactSingleParams memory  feeParam = IQuoter.QuoteExactSingleParams({
+        IQuoter.QuoteExactSingleParams memory feeParam = IQuoter.QuoteExactSingleParams({
             poolKey: pool,
             zeroForOne: _zeroForOne,
             recipient: address(this),
@@ -109,12 +92,11 @@ contract QuoterTest is Script {
             hookData: ""
         });
 
-        uint sqrtPriceX96;
-        (, sqrtPriceX96)  = quoter.getOutputAmount(swapData.zeroForOne, swapData.amountSpecified);
+        uint256 sqrtPriceX96;
+        (, sqrtPriceX96) = quoter.getOutputAmount(swapData.zeroForOne, swapData.amountSpecified);
 
         bytes memory feeData = abi.encode(abs(swapData.amountSpecified), sqrtPriceX96);
         uint24 fee = calcLib.getFee(feeData);
         console.log(fee);
     }
-
 }

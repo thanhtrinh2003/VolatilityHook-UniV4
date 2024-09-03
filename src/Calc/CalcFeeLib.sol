@@ -23,10 +23,11 @@ contract CalcFeeLib is ICalcFee {
         (uint256 volume, uint160 sqrtPriceLimit) = abi.decode(data, (uint256, uint160));
         return calculateFee(volume, oracle.getVolatility(), sqrtPriceLimit);
     }
+
     function calculateFee(uint256 volume, uint256 volatility, uint256 price) public pure returns (uint24) {
         // Normalized Value
-        uint256 normalizedVolume = volume / ETH_VOL_SCALE
-        uint256 normalizedVolatility = volatility / ETH_VOL_SCALE
+        uint256 normalizedVolume = volume / ETH_VOL_SCALE;
+        uint256 normalizedVolatility = volatility / ETH_VOL_SCALE;
         uint256 vol_squared = normalizedVolatility * normalizedVolatility;
 
         uint256 fee_per_lot = MIN_FEE + FUDGE_FACTOR * normalizedVolume * vol_squared;

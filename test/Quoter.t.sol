@@ -41,7 +41,6 @@ contract TestQuoter is Test {
         // Deploy Quoter
         quoter = Quoter(0x52f09Df7814BF3274812785b9fb249020e7412d0);
         quoterWrapper = new QuoterWrapper(address(quoter), SETH_ADDRESS, SUSDC_ADDRESS, hook);
-        
     }
 
     function testQuoter() public {
@@ -57,7 +56,7 @@ contract TestQuoter is Test {
         });
 
         // ______________________________________________
-        IQuoter.QuoteExactSingleParams memory  param = IQuoter.QuoteExactSingleParams({
+        IQuoter.QuoteExactSingleParams memory param = IQuoter.QuoteExactSingleParams({
             poolKey: pool,
             zeroForOne: true,
             recipient: address(this),
@@ -66,21 +65,22 @@ contract TestQuoter is Test {
             hookData: ""
         });
 
-        (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
-        
+        (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) =
+            quoter.quoteExactInputSingle(param);
+
         console.log(token0);
 
         console.log("_____quoteExactInputSingle_____");
-        console.log(uint(int256(deltaAmounts[0])));  
-        console.log(uint(-int256(deltaAmounts[1])));  
+        console.log(uint256(int256(deltaAmounts[0])));
+        console.log(uint256(-int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
-        (deltaAmounts,  sqrtPriceX96After,  initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
-        
+        (deltaAmounts, sqrtPriceX96After, initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
+
         console.log("_____quoteExactOutputSingle_____");
-        console.log(uint(int256(deltaAmounts[0])));  
-        console.log(uint(-int256(deltaAmounts[1])));  
+        console.log(uint256(int256(deltaAmounts[0])));
+        console.log(uint256(-int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
@@ -93,39 +93,38 @@ contract TestQuoter is Test {
             hookData: ""
         });
 
-        (deltaAmounts,  sqrtPriceX96After,  initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
-        
+        (deltaAmounts, sqrtPriceX96After, initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
+
         console.log("_____quoteExactInputSingle_____");
-        console.log(uint(-int256(deltaAmounts[0])));  
-        console.log(uint(int256(deltaAmounts[1])));  
+        console.log(uint256(-int256(deltaAmounts[0])));
+        console.log(uint256(int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
-        (deltaAmounts,  sqrtPriceX96After,  initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
+        (deltaAmounts, sqrtPriceX96After, initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
 
         console.log("_____quoteExactOutputSingle_____");
-        console.log(uint(-int256(deltaAmounts[0])));  
-        console.log(uint(int256(deltaAmounts[1])));  
+        console.log(uint256(-int256(deltaAmounts[0])));
+        console.log(uint256(int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
-         //QUOTER WRAPPER
+        //QUOTER WRAPPER
         console.log("_________________Wrapper_________________________");
-        (uint amountIn, uint sqrtPrice) = quoterWrapper.getOutputAmount(0, 1e18);
-        console.log("Amount in: ",amountIn/1e18);
+        (uint256 amountIn, uint256 sqrtPrice) = quoterWrapper.getOutputAmount(0, 1e18);
+        console.log("Amount in: ", amountIn / 1e18);
         console.log("Sqrt Price After: ", sqrtPrice);
 
         (amountIn, sqrtPrice) = quoterWrapper.getOutputAmount(1, 3600e18);
-        console.log("Amount in: ",amountIn/1e18);
+        console.log("Amount in: ", amountIn / 1e18);
         console.log("Sqrt Price After: ", sqrtPrice);
 
         (amountIn, sqrtPrice) = quoterWrapper.getInputAmount(0, 3600e18);
-        console.log("Amount in: ",amountIn/1e18);
+        console.log("Amount in: ", amountIn / 1e18);
         console.log("Sqrt Price After: ", sqrtPrice);
 
         (amountIn, sqrtPrice) = quoterWrapper.getInputAmount(1, 1e18);
-        console.log("Amount in: ",amountIn/1e18);
+        console.log("Amount in: ", amountIn / 1e18);
         console.log("Sqrt Price After: ", sqrtPrice);
-    
     }
 }
