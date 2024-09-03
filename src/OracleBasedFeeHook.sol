@@ -11,7 +11,6 @@ import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 import {SnarkBasedVolatilityOracle} from "./SnarkBasedVolatilityOracle.sol";
-import {console} from "forge-std/console.sol";
 import {ICalcFee} from "./interfaces/ICalcFee.sol";
 
 contract OracleBasedFeeHook is BaseHook, Ownable {
@@ -73,6 +72,11 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         override
         returns (bytes4, BeforeSwapDelta, uint24)
     {
+
+        if (swapData.zeroForOne) {
+            
+        }
+
         bytes memory feeData = abi.encode(abs(swapData.amountSpecified), swapData.sqrtPriceLimitX96);
         uint24 fee = calcLib.getFee(feeData);
         poolManager.updateDynamicLPFee(key, fee);
