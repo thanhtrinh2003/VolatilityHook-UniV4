@@ -47,7 +47,7 @@ contract QuoterTest is Script {
         });
 
         // ______________________________________________
-        IQuoter.QuoteExactSingleParams memory  param = IQuoter.QuoteExactSingleParams({
+        IQuoter.QuoteExactSingleParams memory param = IQuoter.QuoteExactSingleParams({
             poolKey: pool,
             zeroForOne: true,
             recipient: address(this),
@@ -56,22 +56,22 @@ contract QuoterTest is Script {
             hookData: ""
         });
 
-        (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
-        
+        (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) =
+            quoter.quoteExactInputSingle(param);
+
         console.log(token0);
 
         console.log("_____quoteExactInputSingle_____");
-        console.log(uint(int256(deltaAmounts[0])));  
-        console.log(uint(-int256(deltaAmounts[1])));  
+        console.log(uint256(int256(deltaAmounts[0])));
+        console.log(uint256(-int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
+        (deltaAmounts, sqrtPriceX96After, initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
 
-        (deltaAmounts,  sqrtPriceX96After,  initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
-        
         console.log("_____quoteExactOutputSingle_____");
-        console.log(uint(int256(deltaAmounts[0])));  
-        console.log(uint(-int256(deltaAmounts[1])));  
+        console.log(uint256(int256(deltaAmounts[0])));
+        console.log(uint256(-int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
@@ -84,27 +84,20 @@ contract QuoterTest is Script {
             hookData: ""
         });
 
-        (deltaAmounts,  sqrtPriceX96After,  initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
-        
+        (deltaAmounts, sqrtPriceX96After, initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
+
         console.log("_____quoteExactInputSingle_____");
-        console.log(uint(-int256(deltaAmounts[0])));  
-        console.log(uint(int256(deltaAmounts[1])));  
+        console.log(uint256(-int256(deltaAmounts[0])));
+        console.log(uint256(int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
 
-        (deltaAmounts,  sqrtPriceX96After,  initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
+        (deltaAmounts, sqrtPriceX96After, initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
 
         console.log("_____quoteExactOutputSingle_____");
-        console.log(uint(-int256(deltaAmounts[0])));  
-        console.log(uint(int256(deltaAmounts[1])));  
+        console.log(uint256(-int256(deltaAmounts[0])));
+        console.log(uint256(int256(deltaAmounts[1])));
         console.log("sqrtPriceX96After: ", sqrtPriceX96After);
         console.log("initializedTicksLoaded: ", initializedTicksLoaded);
-    
-
-       
-
-        
-
-
     }
 }

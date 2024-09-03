@@ -16,8 +16,8 @@ import {Faucet} from "contracts/Faucet.sol";
 contract FaucetDeployment is Script {
     using CurrencyLibrary for Currency;
 
-    address constant SETH_ADDRESS = address(0x000D25621951a6C10F22377fef91df9a7Eb3042C); 
-    address constant SUSDC_ADDRESS = address(0xb3a9E7d346982164404949bB5647A1A7C44cC025); 
+    address constant SETH_ADDRESS = address(0x000D25621951a6C10F22377fef91df9a7Eb3042C);
+    address constant SUSDC_ADDRESS = address(0xb3a9E7d346982164404949bB5647A1A7C44cC025);
 
     address deployer;
 
@@ -29,7 +29,7 @@ contract FaucetDeployment is Script {
 
         // Deploy Faucet
         Faucet faucet = new Faucet(SETH_ADDRESS, SUSDC_ADDRESS);
-        IERC20(SETH_ADDRESS).transfer(address(faucet), IERC20(SETH_ADDRESS).balanceOf(deployer)-100e18);
-        IERC20(SUSDC_ADDRESS).transfer(address(faucet), IERC20(SUSDC_ADDRESS).balanceOf(deployer)-100e18);
+        IERC20(SETH_ADDRESS).transfer(address(faucet), IERC20(SETH_ADDRESS).balanceOf(deployer) - 100e18);
+        IERC20(SUSDC_ADDRESS).transfer(address(faucet), IERC20(SUSDC_ADDRESS).balanceOf(deployer) - 100e18);
     }
 }
