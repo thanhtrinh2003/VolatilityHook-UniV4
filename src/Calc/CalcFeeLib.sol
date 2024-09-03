@@ -12,14 +12,10 @@ contract CalcFeeLib is ICalcFee {
     uint256 constant X96_BITS = 96;
 
     // taken from the source
-    //TODO: is it necessary to represent this value as ether units too?
-    uint256 ETH_LONG_VOL = 0.000777943209666519 ether;
-    uint256 ETH_VOL_SCALE_FIXED = ETH_LONG_VOL << NUM_FRAC_BITS;
+    uint256 ETH_VOL_SCALE = 150;
 
     /// The MIN_FEE as in fixed point arithmetic, but it is represented as an unit of ether
-    //TODO: Figure what a representation with ether units changes in the
-    // calcFee function
-    uint256 LONG_ETH_VOL_FIXED = 0.6 ether << NUM_FRAC_BITS;
+    uint256 LONG_ETH_VOL_FIXED = 777943209666519 << NUM_FRAC_BITS;
     uint256 constant MIN_FEE = 3.5 ether << NUM_FRAC_BITS;
 
     constructor(address _oracle) {
@@ -43,7 +39,7 @@ contract CalcFeeLib is ICalcFee {
     }
 
     function calculateFee(uint256 volume, uint256 rv) public view returns (uint256) {
-        uint256 scaled_volume = fixedPointDivide(volume, 150);
+        uint256 scaled_volume = fixedPointDivide(volume, ETH_VOL_SCALE);
 
         // multiply rv by 1 ether o account for representation of 0.6 as 0.6 ether
         uint256 scaled_vol = fixedPointDivide(rv * 1 ether, LONG_ETH_VOL_FIXED);
