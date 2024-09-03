@@ -5,8 +5,15 @@ pragma solidity ^0.8.0;
 import {ICalcFee} from "../interfaces/ICalcFee.sol";
 import {IVolatilityOracle} from "../interfaces/IVolatilityOracle.sol";
 
+import {MIN_SQRT_PRICE, MAX_SQRT_PRICE} from "../src/libraries/TickMath.sol";
+
 contract CalcFeeLib is ICalcFee {
     IVolatilityOracle public oracle;
+    const LONG_ETH_VOL = 0.6;
+    const MIN_FEE = 3.5;
+    const ETH_VOL_SCALE = 150;
+
+    const FUDGE_FACTOR = 2;
 
     constructor(address _oracle) {
         oracle = IVolatilityOracle(_oracle);
@@ -16,26 +23,14 @@ contract CalcFeeLib is ICalcFee {
         (uint256 volume, uint160 sqrtPriceLimit) = abi.decode(data, (uint256, uint160));
         return calculateFee(volume, oracle.getVolatility(), sqrtPriceLimit);
     }
-
     function calculateFee(uint256 volume, uint256 volatility, uint256 price) public pure returns (uint24) {
-        // Normalize inputs
-        uint256 maxVolume = 1e18; // max value for volume
-        uint256 maxVolatility = 1e9; // max value for volatility
-        uint256 maxPrice = 1e10; //  max value for price
+        // Normalized Value
+        uint256 normalizedVolume = volume / ETH_VOL_SCALE
+        uint256 normalizedVolatility = volatility / ETH_VOL_SCALE
+        uint256 vol_squared = normalizedVolatility * normalizedVolatility;
 
-        uint256 normalizedVolume = volume * 1e18 / maxVolume;
-        uint256 normalizedVolatility = volatility * 1e18 / maxVolatility;
-        uint256 normalizedPrice = price * 1e18 / maxPrice;
+        uint256 fee_per_lot = MIN_FEE + FUDGE_FACTOR * normalizedVolume * vol_squared;
 
-        uint256 value = (normalizedVolume + normalizedVolatility + normalizedPrice) / 3;
-
-        // Scale combined value to fee range
-        uint256 minFee = 1000;
-        //TODO: should the max fee exceed some limit?
-        uint256 maxFee = 100000;
-
-        uint256 fee = minFee + (value * (maxFee - minFee) / 1e18);
-
-        return uint24(fee);
+        return uint24(fee_per_lot);
     }
 }
