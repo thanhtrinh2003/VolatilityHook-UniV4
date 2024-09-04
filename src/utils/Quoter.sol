@@ -207,7 +207,11 @@ contract Quoter is IQuoter, IUnlockCallback {
     }
 
     /// @dev quote an ExactInput swap on a pool, then revert with the result
-    function quoteExactInputSingleSelfCall(QuoteExactSingleParams memory params) public selfOnly returns (bytes memory) {
+    function quoteExactInputSingleSelfCall(QuoteExactSingleParams memory params)
+        public
+        selfOnly
+        returns (bytes memory)
+    {
         (, int24 tickBefore,,) = manager.getSlot0(params.poolKey.toId());
 
         (BalanceDelta deltas, uint160 sqrtPriceX96After, int24 tickAfter) = _swap(
@@ -278,7 +282,11 @@ contract Quoter is IQuoter, IUnlockCallback {
     }
 
     /// @dev quote an ExactOutput swap on a pool, then revert with the result
-    function quoteExactOutputSingleSelfCall(QuoteExactSingleParams memory params) public selfOnly returns (bytes memory) {
+    function quoteExactOutputSingleSelfCall(QuoteExactSingleParams memory params)
+        public
+        selfOnly
+        returns (bytes memory)
+    {
         // if no price limit has been specified, cache the output amount for comparison in the swap callback
         if (params.sqrtPriceLimitX96 == 0) amountOutCached = params.exactAmount;
 

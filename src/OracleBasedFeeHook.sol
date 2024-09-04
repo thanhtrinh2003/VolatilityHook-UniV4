@@ -11,8 +11,8 @@ import {LPFeeLibrary} from "@v4-core/libraries/LPFeeLibrary.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IFeeOracle} from "./interfaces/IFeeOracle.sol";
 import {SnarkBasedVolatilityOracle} from "./SnarkBasedVolatilityOracle.sol";
-import {console} from "forge-std/console.sol";
 import {ICalcFee} from "./interfaces/ICalcFee.sol";
+import {QuoterWrapper} from "./QuoterWrapper.sol";
 
 contract OracleBasedFeeHook is BaseHook, Ownable {
     using LPFeeLibrary for uint24;
@@ -25,11 +25,16 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
     uint32 deployTimestamp;
 
     ICalcFee public calcLib;
+    QuoterWrapper public quoter;
 
     event FeeUpdate(uint256 indexed newFee, uint256 timestamp);
 
-    constructor(IPoolManager _poolManager, address _calcLib) BaseHook(_poolManager) Ownable(DEV_WALLET) {
+    constructor(IPoolManager _poolManager, address _calcLib, address _quoter)
+        BaseHook(_poolManager)
+        Ownable(DEV_WALLET)
+    {
         calcLib = ICalcFee(_calcLib);
+        quoter = QuoterWrapper(_quoter);
     }
 
     function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
@@ -73,7 +78,10 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
         override
         returns (bytes4, BeforeSwapDelta, uint24)
     {
-        bytes memory feeData = abi.encode(abs(swapData.amountSpecified), swapData.sqrtPriceLimitX96);
+        uint256 sqrtPriceX96;
+        (, sqrtPriceX96) = quoter.getOutputAmount(swapData.zeroForOne, swapData.amountSpecified);
+
+        bytes memory feeData = abi.encode(abs(swapData.amountSpecified), sqrtPriceX96);
         uint24 fee = calcLib.getFee(feeData);
         poolManager.updateDynamicLPFee(key, fee);
         emit FeeUpdate(fee, block.timestamp);
