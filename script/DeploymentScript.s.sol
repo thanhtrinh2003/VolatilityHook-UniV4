@@ -134,6 +134,5 @@ contract DeploymentScript is Script {
         // Faucet faucet = new Faucet(SETH_ADDRESS, SUSDC_ADDRESS);
         // IERC20(SETH_ADDRESS).transfer(address(faucet), IERC20(SETH_ADDRESS).balanceOf(deployer));
         // IERC20(SUSDC_ADDRESS).transfer(address(faucet), IERC20(SUSDC_ADDRESS).balanceOf(deployer));
-        
     }
 }

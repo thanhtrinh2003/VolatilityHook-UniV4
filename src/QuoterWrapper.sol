@@ -21,7 +21,7 @@ contract QuoterWrapper {
         quoter = Quoter(_quoter);
         token0 = _token0;
         token1 = _token1;
-        
+
         pool = PoolKey({
             currency0: Currency.wrap(_token0),
             currency1: Currency.wrap(_token1),
@@ -31,9 +31,9 @@ contract QuoterWrapper {
         });
     }
 
-    function getOutputAmount(uint assetIn, uint amountIn) external returns (uint, uint) {
+    function getOutputAmount(uint256 assetIn, uint256 amountIn) external returns (uint256, uint256) {
         if (assetIn == 0) {
-            IQuoter.QuoteExactSingleParams memory  param = IQuoter.QuoteExactSingleParams({
+            IQuoter.QuoteExactSingleParams memory param = IQuoter.QuoteExactSingleParams({
                 poolKey: pool,
                 zeroForOne: true,
                 recipient: address(this),
@@ -42,11 +42,11 @@ contract QuoterWrapper {
                 hookData: ""
             });
 
-            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
+            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) =
+                quoter.quoteExactInputSingle(param);
 
-            uint amountOut = uint(-int256(deltaAmounts[1]));
-            return (amountOut, uint(sqrtPriceX96After));
-
+            uint256 amountOut = uint256(-int256(deltaAmounts[1]));
+            return (amountOut, uint256(sqrtPriceX96After));
         } else {
             IQuoter.QuoteExactSingleParams memory param = IQuoter.QuoteExactSingleParams({
                 poolKey: pool,
@@ -57,16 +57,17 @@ contract QuoterWrapper {
                 hookData: ""
             });
 
-            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) = quoter.quoteExactInputSingle(param);
-        
-            uint amountOut = uint(-int256(deltaAmounts[0]));
-            return (amountOut, uint(sqrtPriceX96After));
+            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) =
+                quoter.quoteExactInputSingle(param);
+
+            uint256 amountOut = uint256(-int256(deltaAmounts[0]));
+            return (amountOut, uint256(sqrtPriceX96After));
         }
     }
 
-    function getInputAmount(uint assetIn, uint amountOut) external returns (uint, uint) {
+    function getInputAmount(uint256 assetIn, uint256 amountOut) external returns (uint256, uint256) {
         if (assetIn == 0) {
-            IQuoter.QuoteExactSingleParams memory  param = IQuoter.QuoteExactSingleParams({
+            IQuoter.QuoteExactSingleParams memory param = IQuoter.QuoteExactSingleParams({
                 poolKey: pool,
                 zeroForOne: true,
                 recipient: address(this),
@@ -75,11 +76,12 @@ contract QuoterWrapper {
                 hookData: ""
             });
 
-            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
+            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) =
+                quoter.quoteExactOutputSingle(param);
 
-            uint amountIn = uint(int256(deltaAmounts[0]));
+            uint256 amountIn = uint256(int256(deltaAmounts[0]));
 
-            return (amountIn, uint(sqrtPriceX96After));
+            return (amountIn, uint256(sqrtPriceX96After));
         } else {
             IQuoter.QuoteExactSingleParams memory param = IQuoter.QuoteExactSingleParams({
                 poolKey: pool,
@@ -89,12 +91,13 @@ contract QuoterWrapper {
                 sqrtPriceLimitX96: 5819260982861451012142998631604,
                 hookData: ""
             });
-            
-            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) = quoter.quoteExactOutputSingle(param);
 
-            uint amountIn = uint(int256(deltaAmounts[1]));
+            (int128[] memory deltaAmounts, uint160 sqrtPriceX96After, uint32 initializedTicksLoaded) =
+                quoter.quoteExactOutputSingle(param);
 
-            return (amountIn, uint(sqrtPriceX96After));
+            uint256 amountIn = uint256(int256(deltaAmounts[1]));
+
+            return (amountIn, uint256(sqrtPriceX96After));
         }
     }
 }
