@@ -39,10 +39,19 @@ contract CalcFeeLibTest is Test {
         assertLt((3854574524328 - fee2), 20);
     }
 
+    // check if bips calculation matches 
+    function test_calcFeeBips() public {
+        uint160 sqrtX96Price = 4819260982861451157002617094144;
+        uint bips = calcFeeLib.calcFeeBips(150 ether, 710903863, sqrtX96Price);
+        assertEq(bips, 13);
+         uint bips2 = calcFeeLib.calcFeeBips(150 ether, 560003257, sqrtX96Price);
+        assertEq(bips2, 11);
+    }
+
     // writes the fees calçculated into a file to be used in the graph in the notes
     // NOTICE: check the graph in the notebook to make sure it is meaningful
     function test_writeFees() public {
-        uint256 volume = 1 ether;
+        uint256 volume = 150 ether;
         // 1 ether unit of sETH is 3700 USDC in this scenario, same as the notebooks in the volatility_substream
         uint160 sqrtPriceLimit = 4819260982861451157002617094144;
         uint24[] memory fees = new uint24[](newRvValues.length);

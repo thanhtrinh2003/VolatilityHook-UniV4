@@ -53,15 +53,15 @@ contract CalcFeeLib is ICalcFee {
 
     function calcFeeBips(uint256 volume, uint256 rv, uint256 sqrtX96Price) public view returns (uint24) {
         uint256 fee_per_lot = calculateFee(volume, rv);
-        uint256 price = ((sqrtX96Price * sqrtX96Price) >> (2 * X96_BITS)) << X96_BITS;
+        uint256 price = ((sqrtX96Price * sqrtX96Price) >> (2 * X96_BITS)) <<X96_BITS;
 
         uint256 num_shift_bits = 2 * X96_BITS - NUM_FRAC_BITS;
 
-        uint256 fee_percent_fixed = (fee_per_lot << num_shift_bits) / (price >> X96_BITS);
+        uint256 fee_percent_fixed = (fee_per_lot << num_shift_bits) / (price);
 
         // to go from fixed-point to bips we need to multiply our fixed-point number by 10_000 and shift right by the scale factor
         uint256 fee_percent_bips = (10000 * fee_percent_fixed) >> X96_BITS;
         // 1 bip = 0.01%
         return uint24(fee_percent_bips);
     }
-}
+} 
