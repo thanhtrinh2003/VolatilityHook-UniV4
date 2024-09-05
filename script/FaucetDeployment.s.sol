@@ -16,8 +16,8 @@ import {Faucet} from "contracts/Faucet.sol";
 contract FaucetDeployment is Script {
     using CurrencyLibrary for Currency;
 
-    address constant SETH_ADDRESS = address(0x000D25621951a6C10F22377fef91df9a7Eb3042C);
-    address constant SUSDC_ADDRESS = address(0xb3a9E7d346982164404949bB5647A1A7C44cC025);
+    address constant SETH_ADDRESS = address(0x9E4a871A6936A14925b63D6687674853cdB9C5CA);
+    address constant SUSDC_ADDRESS = address(0x9042F100086279F09b45f29C2f61376980b28d69);
 
     address deployer;
 

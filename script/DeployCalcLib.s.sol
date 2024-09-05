@@ -30,7 +30,5 @@ contract DeployCalcFeeLib is Script {
         vm.stopBroadcast();
 
         console.log("CalcFeeLib deployed to:", address(calcFeeLib));
-
-        // sets the new calcFeeLib address int the OracleBasedHook
     }
 }

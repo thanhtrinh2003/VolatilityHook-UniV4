@@ -22,9 +22,9 @@ contract QuoterWrapperDeployment is Script {
     address poolManager = 0x75E7c1Fd26DeFf28C7d1e82564ad5c24ca10dB14;
     Quoter quoter = Quoter(0x52f09Df7814BF3274812785b9fb249020e7412d0);
 
-    address hook = 0xB7d34aa3AF1BE6Be2Adf1af3E4e179867cf9e080;
-    address SETH_ADDRESS = 0x000D25621951a6C10F22377fef91df9a7Eb3042C;
-    address SUSDC_ADDRESS = 0xb3a9E7d346982164404949bB5647A1A7C44cC025;
+    address hook = 0x3BE38115fe7423B3c99abDCfFbE9e92366972080;
+    address SETH_ADDRESS = 0x9E4a871A6936A14925b63D6687674853cdB9C5CA;
+    address SUSDC_ADDRESS = 0x9042F100086279F09b45f29C2f61376980b28d69;
     address deployer;
 
     function run() external {
