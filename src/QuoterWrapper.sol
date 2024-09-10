@@ -19,12 +19,13 @@ contract QuoterWrapper {
 
     constructor(address _quoter, address _token0, address _token1, address _hook) {
         quoter = Quoter(_quoter);
-        token0 = _token0;
-        token1 = _token1;
+        token0 = uint160(_token0) < uint160(_token1) ? _token0 : _token1;
+        token1 =  uint160(_token0) < uint160(_token1) ? _token1 : _token0;
+
 
         pool = PoolKey({
-            currency0: Currency.wrap(_token0),
-            currency1: Currency.wrap(_token1),
+            currency0: Currency.wrap(token0),
+            currency1: Currency.wrap(token1),
             fee: 0x800000,
             tickSpacing: 60,
             hooks: IHooks(_hook)

@@ -35,21 +35,21 @@ contract QuoterWrapperDeployment is Script {
 
         QuoterWrapper quoterWrapper = new QuoterWrapper(address(quoter), SETH_ADDRESS, SUSDC_ADDRESS, hook);
 
-        // console.log("_________________Wrapper_________________________");
-        // (uint amount, uint sqrtPrice) = quoterWrapper.getOutputAmount(0, 1e18);
-        // console.log("Amount in: ",amount/1e18);
-        // console.log("Sqrt Price After: ", sqrtPrice);
+        console.log("_________________Wrapper_________________________");
+        (uint amount, uint sqrtPrice) = quoterWrapper.getOutputAmount(0, 1e18);
+        console.log("Amount in: ",amount/1e18);
+        console.log("Sqrt Price After: ", sqrtPrice);
 
-        // (amount, sqrtPrice) = quoterWrapper.getOutputAmount(1, 3600e18);
-        // console.log("Amount in: ",amount/1e18);
-        // console.log("Sqrt Price After: ", sqrtPrice);
+        (amount, sqrtPrice) = quoterWrapper.getOutputAmount(1, 3600e18);
+        console.log("Amount in: ",amount/1e18);
+        console.log("Sqrt Price After: ", sqrtPrice);
 
-        // (amount, sqrtPrice) = quoterWrapper.getInputAmount(0, 3600e18);
-        // console.log("Amount in: ",amount/1e18);
-        // console.log("Sqrt Price After: ", sqrtPrice);
+        (amount, sqrtPrice) = quoterWrapper.getInputAmount(0, 3600e18);
+        console.log("Amount in: ",amount/1e18);
+        console.log("Sqrt Price After: ", sqrtPrice);
 
-        // (amount, sqrtPrice) = quoterWrapper.getInputAmount(1, 1e18);
-        // console.log("Amount in: ",amount/1e18);
-        // console.log("Sqrt Price After: ", sqrtPrice);
+        (amount, sqrtPrice) = quoterWrapper.getInputAmount(1, 1e18);
+        console.log("Amount in: ",amount/1e18);
+        console.log("Sqrt Price After: ", sqrtPrice);
     }
 }
