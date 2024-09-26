@@ -15,7 +15,7 @@ import {OracleBasedFeeHook} from "src/OracleBasedFeeHook.sol";
 contract DeployCalcFeeLib is Script {
     function run() external {
         address RvOracleAddress = 0xa120424BdC490002F0B949e2BB461302547e6769;
-        OracleBasedFeeHook hook = OracleBasedFeeHook(0xB7d34aa3AF1BE6Be2Adf1af3E4e179867cf9e080);
+        OracleBasedFeeHook hook = OracleBasedFeeHook(0x3BE38115fe7423B3c99abDCfFbE9e92366972080);
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.rememberKey(deployerPrivateKey);
         address deployerAddress = vm.addr(deployerPrivateKey);
