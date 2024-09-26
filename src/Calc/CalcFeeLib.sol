@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 
 import {ICalcFee} from "../interfaces/ICalcFee.sol";
 import {IVolatilityOracle} from "../interfaces/IVolatilityOracle.sol";
-import "forge-std/console.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract CalcFeeLib is ICalcFee {
+contract CalcFeeLib is ICalcFee, Ownable {
     IVolatilityOracle public oracle;
     uint256 constant NUM_FRAC_BITS = 40;
     uint256 constant X96_BITS = 96;
@@ -16,9 +16,9 @@ contract CalcFeeLib is ICalcFee {
 
     /// The MIN_FEE as in fixed point arithmetic, but it is represented as an unit of ether
     uint256 LONG_ETH_VOL_FIXED = 777943209666519 << NUM_FRAC_BITS;
-    uint256 constant MIN_FEE = 3.5 ether << NUM_FRAC_BITS;
+    uint256 constant MIN_FEE = 0.25 ether << NUM_FRAC_BITS;
 
-    constructor(address _oracle) {
+    constructor(address _oracle) Ownable(msg.sender) {
         oracle = IVolatilityOracle(_oracle);
     }
 
@@ -53,7 +53,7 @@ contract CalcFeeLib is ICalcFee {
 
     function calcFeeBips(uint256 volume, uint256 rv, uint256 sqrtX96Price) public view returns (uint24) {
         uint256 fee_per_lot = calculateFee(volume, rv);
-        uint256 price = ((sqrtX96Price * sqrtX96Price) >> (2 * X96_BITS)) <<X96_BITS;
+        uint256 price = ((sqrtX96Price * sqrtX96Price) >> (2 * X96_BITS)) << X96_BITS;
 
         uint256 num_shift_bits = 2 * X96_BITS - NUM_FRAC_BITS;
 
@@ -64,4 +64,8 @@ contract CalcFeeLib is ICalcFee {
         // 1 bip = 0.01%
         return uint24(fee_percent_bips);
     }
-} 
+
+    function setMinFee(uint256 _minFee) public onlyOwner {
+        MIN_FEE = _minFee << NUM_FRAC_BITS;
+    }
+}
