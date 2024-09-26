@@ -8,15 +8,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract CalcFeeLib is ICalcFee, Ownable {
     IVolatilityOracle public oracle;
-    uint256 constant NUM_FRAC_BITS = 40;
-    uint256 constant X96_BITS = 96;
-
-    // taken from the source
-    uint256 ETH_VOL_SCALE = 150;
-
-    /// The MIN_FEE as in fixed point arithmetic, but it is represented as an unit of ether
-    uint256 LONG_ETH_VOL_FIXED = 777943209666519 << NUM_FRAC_BITS;
-    uint256 constant MIN_FEE = 0.25 ether << NUM_FRAC_BITS;
+    uint256 public constant NUM_FRAC_BITS = 40;
+    uint256 public constant X96_BITS = 96;
+    uint256 public ETH_VOL_SCALE = 150;
+    uint256 public LONG_ETH_VOL_FIXED = 777943209666519 << NUM_FRAC_BITS;
+    uint256 public MIN_FEE = 2 ether << NUM_FRAC_BITS;
 
     constructor(address _oracle) Ownable(msg.sender) {
         oracle = IVolatilityOracle(_oracle);
