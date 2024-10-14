@@ -31,10 +31,7 @@ contract OracleBasedFeeHook is BaseHook, Ownable {
 
     event FeeUpdate(uint256 indexed newFee, uint256 timestamp);
 
-    constructor(IPoolManager _poolManager, address _calcLib)
-        BaseHook(_poolManager)
-        Ownable(DEV_WALLET)
-    {
+    constructor(IPoolManager _poolManager, address _calcLib) BaseHook(_poolManager) Ownable(DEV_WALLET) {
         calcLib = ICalcFee(_calcLib);
     }
 
